@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#39B649">
+  <title>Audios del libro · Mathink</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --verde: #39B649;
+      --verde-osc1: #0B753B;
+      --verde-osc2: #347341;
+      --rojo: #F02D43;
+      --rojo2: #DC424A;
+      --naranja: #F15B2B;
+      --ambar: #FDB040;
+      --rosa: #F15E88;
+      --azul: #3674B7;
+      --blanco: #FFFFFF;
+      --texto: #262626;
+      --gris: #E8E8E8;
+      --cuadricula: #CCCCCC;
+    }
+
+    * { box-sizing: border-box; }
+
+    [hidden] { display: none !important; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Quicksand", system-ui, sans-serif;
+      color: var(--texto);
+      background-color: var(--blanco);
+      /* Cuadrícula Mathink */
+      background-image:
+        linear-gradient(var(--cuadricula) 1px, transparent 1px),
+        linear-gradient(90deg, var(--cuadricula) 1px, transparent 1px);
+      background-size: 24px 24px;
+      background-attachment: fixed;
+    }
+
+    .cabecera {
+      background: var(--verde);
+      color: var(--blanco);
+      padding: 40px 16px 72px;
+      text-align: center;
+      border-radius: 0 0 32px 32px;
+    }
+
+    .logo {
+      display: block;
+      height: 56px;
+      width: auto;
+      margin: 0 auto 20px;
+    }
+
+    .logo-texto {
+      font-family: "Fredoka", sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: 0.02em;
+      margin: 0 0 20px;
+    }
+
+    .logo-texto small {
+      display: block;
+      font-family: "Quicksand", sans-serif;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+
+    h1 {
+      font-family: "Fredoka", sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.9rem, 6vw, 2.6rem);
+      line-height: 1.1;
+      margin: 0 0 10px;
+    }
+
+    .subtitulo {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    main {
+      max-width: 560px;
+      margin: -44px auto 0;
+      padding: 0 16px 48px;
+    }
+
+    .lista {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 14px;
+    }
+
+    .pista {
+      --color: var(--verde-osc1);
+      background: var(--color);
+      color: var(--blanco);
+      border-radius: 22px;
+      padding: 14px 16px 14px 14px;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
+      scroll-margin-top: 24px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .pista.destacada {
+      outline: 4px solid var(--ambar);
+      outline-offset: 3px;
+    }
+
+    .pista-fila {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .boton-play {
+      flex: none;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      background: var(--blanco);
+      color: var(--color);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: transform 0.12s ease;
+    }
+
+    .boton-play:hover { transform: scale(1.06); }
+    .boton-play:active { transform: scale(0.96); }
+    .boton-play:focus-visible { outline: 3px solid var(--ambar); outline-offset: 3px; }
+    .boton-play:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+    .boton-play svg { width: 26px; height: 26px; fill: currentColor; }
+    .boton-play .icono-pausa { display: none; }
+    .pista.sonando .boton-play .icono-play { display: none; }
+    .pista.sonando .boton-play .icono-pausa { display: block; }
+
+    .pista-texto { min-width: 0; flex: 1; }
+
+    .pista-num {
+      font-family: "Fredoka", sans-serif;
+      font-weight: 500;
+      font-size: 0.85rem;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    .pista-titulo {
+      font-family: "Fredoka", sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      line-height: 1.2;
+      margin: 2px 0 0;
+      overflow-wrap: anywhere;
+    }
+
+    .pista-detalle {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 2px 0 0;
+      opacity: 0.95;
+    }
+
+    .progreso {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pista.activa .progreso { display: flex; }
+
+    .progreso input[type="range"] {
+      flex: 1;
+      min-width: 0;
+      accent-color: var(--blanco);
+      height: 24px;
+      cursor: pointer;
+    }
+
+    .aviso {
+      display: none;
+      margin: 10px 0 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.18);
+      border-radius: 12px;
+      padding: 8px 12px;
+    }
+
+    .pista.error .aviso { display: block; }
+
+    .mensaje {
+      background: var(--blanco);
+      border: 2px solid var(--gris);
+      border-radius: 18px;
+      padding: 18px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 8px 16px 40px;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    footer p {
+      background: var(--blanco);
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 12px;
+      margin: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .pista, .boton-play { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="cabecera">
+    <img class="logo" src="logo.png" alt="Mathink" onerror="this.hidden=true; document.getElementById('logo-texto').hidden=false;">
+    <p class="logo-texto" id="logo-texto" hidden>Mathink<small>Método Singapur</small></p>
+    <h1 id="titulo">Audios del libro</h1>
+    <p class="subtitulo" id="subtitulo"></p>
+  </header>
+
+  <main>
+    <ol class="lista" id="lista" aria-live="polite">
+      <li class="mensaje">Cargando audios…</li>
+    </ol>
+  </main>
+
+  <footer>
+    <p id="pie"></p>
+  </footer>
+
+  <template id="plantilla-pista">
+    <li class="pista">
+      <div class="pista-fila">
+        <button class="boton-play" type="button">
+          <svg class="icono-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+          <svg class="icono-pausa" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4.5" height="14" rx="1.2"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.2"/></svg>
+        </button>
+        <div class="pista-texto">
+          <p class="pista-num"></p>
+          <p class="pista-titulo"></p>
+          <p class="pista-detalle"></p>
+        </div>
+      </div>
+      <div class="progreso">
+        <span class="tiempo-actual">0:00</span>
+        <input type="range" min="0" max="100" step="0.1" value="0">
+        <span class="tiempo-total">0:00</span>
+      </div>
+      <p class="aviso">Este audio todavía no está disponible.</p>
+    </li>
+  </template>
+
+  <script>
+    (function () {
+      // Colores de marca Mathink que admiten texto blanco
+      var COLORES = ["#0B753B", "#F15E88", "#3674B7", "#F15B2B", "#347341", "#DC424A"];
+
+      var lista = document.getElementById("lista");
+      var plantilla = document.getElementById("plantilla-pista");
+      var audio = new Audio();
+      audio.preload = "none";
+      var actual = null; // { li, pista }
+
+      function formatoTiempo(seg) {
+        if (!isFinite(seg) || seg < 0) return "0:00";
+        var m = Math.floor(seg / 60);
+        var s = Math.floor(seg % 60);
+        return m + ":" + (s < 10 ? "0" : "") + s;
+      }
+
+      function marcarSonando(li, sonando) {
+        li.classList.toggle("sonando", sonando);
+        var boton = li.querySelector(".boton-play");
+        var titulo = li.querySelector(".pista-titulo").textContent;
+        boton.setAttribute("aria-label", (sonando ? "Pausar: " : "Reproducir: ") + titulo);
+      }
+
+      function seleccionar(li, pista) {
+        if (actual && actual.li !== li) {
+          marcarSonando(actual.li, false);
+          actual.li.classList.remove("activa");
+        }
+        if (!actual || actual.li !== li) {
+          actual = { li: li, pista: pista };
+          audio.src = pista.archivo;
+          li.classList.add("activa");
+          li.querySelector(".tiempo-actual").textContent = "0:00";
+          li.querySelector("input[type=range]").value = 0;
+        }
+      }
+
+      function alternar(li, pista) {
+        seleccionar(li, pista);
+        if (audio.paused) {
+          var p = audio.play();
+          if (p && p.catch) p.catch(function (e) {
+            if (e && e.name !== "AbortError" && e.name !== "NotAllowedError") mostrarError();
+          });
+        } else {
+          audio.pause();
+        }
+      }
+
+      function mostrarError() {
+        if (!actual) return;
+        actual.li.classList.add("error");
+        actual.li.classList.remove("activa");
+        marcarSonando(actual.li, false);
+      }
+
+      audio.addEventListener("play", function () { if (actual) marcarSonando(actual.li, true); });
+      audio.addEventListener("pause", function () { if (actual) marcarSonando(actual.li, false); });
+      audio.addEventListener("error", mostrarError);
+      audio.addEventListener("loadedmetadata", function () {
+        if (actual) actual.li.querySelector(".tiempo-total").textContent = formatoTiempo(audio.duration);
+      });
+      audio.addEventListener("timeupdate", function () {
+        if (!actual || !audio.duration) return;
+        actual.li.querySelector(".tiempo-actual").textContent = formatoTiempo(audio.currentTime);
+        var barra = actual.li.querySelector("input[type=range]");
+        if (!barra.dataset.arrastrando) barra.value = (audio.currentTime / audio.duration) * 100;
+      });
+      audio.addEventListener("ended", function () {
+        if (actual) marcarSonando(actual.li, false);
+      });
+
+      function crearPista(pista, indice) {
+        var li = plantilla.content.firstElementChild.cloneNode(true);
+        li.id = pista.id;
+        li.style.setProperty("--color", COLORES[indice % COLORES.length]);
+        li.querySelector(".pista-num").textContent = "Audio " + pista.id;
+        li.querySelector(".pista-titulo").textContent = pista.titulo;
+        var detalle = li.querySelector(".pista-detalle");
+        if (pista.detalle) detalle.textContent = pista.detalle; else detalle.remove();
+
+        var boton = li.querySelector(".boton-play");
+        boton.setAttribute("aria-label", "Reproducir: " + pista.titulo);
+        if (!pista.archivo) {
+          boton.disabled = true;
+          li.classList.add("error");
+        }
+        boton.addEventListener("click", function () { alternar(li, pista); });
+
+        var barra = li.querySelector("input[type=range]");
+        barra.setAttribute("aria-label", "Posición en " + pista.titulo);
+        barra.addEventListener("input", function () {
+          barra.dataset.arrastrando = "1";
+          if (actual && actual.li === li && audio.duration) {
+            li.querySelector(".tiempo-actual").textContent = formatoTiempo((barra.value / 100) * audio.duration);
+          }
+        });
+        barra.addEventListener("change", function () {
+          delete barra.dataset.arrastrando;
+          if (actual && actual.li === li && audio.duration) {
+            audio.currentTime = (barra.value / 100) * audio.duration;
+          }
+        });
+        return li;
+      }
+
+      // Si se llega desde un QR (p. ej. .../audios/#02), resaltar ese audio
+      function irAlAudio() {
+        var id = decodeURIComponent(location.hash.replace(/^#/, ""));
+        if (!id) return;
+        var li = document.getElementById(id);
+        if (!li || !li.classList.contains("pista")) return;
+        document.querySelectorAll(".pista.destacada").forEach(function (el) { el.classList.remove("destacada"); });
+        li.classList.add("destacada");
+        li.scrollIntoView({ block: "center" });
+        var boton = li.querySelector(".boton-play");
+        if (!boton.disabled) boton.focus({ preventScroll: true });
+      }
+
+      window.addEventListener("hashchange", irAlAudio);
+
+      fetch("pistas.json", { cache: "no-cache" })
+        .then(function (r) {
+          if (!r.ok) throw new Error(r.status);
+          return r.json();
+        })
+        .then(function (datos) {
+          var libro = datos.libro || {};
+          if (libro.titulo) {
+            document.getElementById("titulo").textContent = libro.titulo;
+            document.title = libro.titulo + " · Audios";
+          }
+          document.getElementById("subtitulo").textContent = libro.subtitulo || "";
+          document.getElementById("pie").textContent = libro.pie || "";
+          if (!libro.pie) document.getElementById("pie").hidden = true;
+
+          lista.innerHTML = "";
+          (datos.pistas || []).forEach(function (pista, i) {
+            lista.appendChild(crearPista(pista, i));
+          });
+          irAlAudio();
+        })
+        .catch(function () {
+          lista.innerHTML = '<li class="mensaje">No se pudo cargar la lista de audios. Intenta de nuevo en un momento.</li>';
+        });
+    })();
+  </script>
+</body>
+</html>

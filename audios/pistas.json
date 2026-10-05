@@ -1,0 +1,27 @@
+{
+  "libro": {
+    "titulo": "Título del libro",
+    "subtitulo": "Audios que acompañan tu libro",
+    "pie": "Escanea el código QR de cada página o elige un audio de la lista."
+  },
+  "pistas": [
+    {
+      "id": "01",
+      "titulo": "Bienvenida",
+      "detalle": "Página 5",
+      "archivo": "archivos/01.mp3"
+    },
+    {
+      "id": "02",
+      "titulo": "Capítulo 1 · Contar con los dedos",
+      "detalle": "Página 12",
+      "archivo": "archivos/02.mp3"
+    },
+    {
+      "id": "03",
+      "titulo": "Capítulo 2 · Formas a mi alrededor",
+      "detalle": "Página 24",
+      "archivo": "archivos/03.mp3"
+    }
+  ]
+}
