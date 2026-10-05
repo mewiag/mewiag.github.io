@@ -2,43 +2,42 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#39B649">
-  <title>Audios del libro · Mathink</title>
+  <title>Canciones Mathink</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
+    /* Lista tipo linktree: cabecera verde, barra fija de búsqueda + niveles, filas compactas por canción */
     :root {
       --verde: #39B649;
-      --verde-osc1: #0B753B;
-      --verde-osc2: #347341;
-      --rojo: #F02D43;
-      --rojo2: #DC424A;
-      --naranja: #F15B2B;
-      --ambar: #FDB040;
+      --verde-osc: #0B753B;
       --rosa: #F15E88;
       --azul: #3674B7;
+      --naranja: #F15B2B;
+      --ambar: #FDB040;
       --blanco: #FFFFFF;
       --texto: #262626;
+      --texto-suave: #5a5a5a;
       --gris: #E8E8E8;
-      --cuadricula: #CCCCCC;
+      --cuadricula: #DDDDDD;
+      --fuente-titulo: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+      --fuente-texto: "Quicksand", system-ui, sans-serif;
     }
 
     * { box-sizing: border-box; }
-
     [hidden] { display: none !important; }
-
     html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: "Quicksand", system-ui, sans-serif;
+      font-family: var(--fuente-texto);
+      font-weight: 500;
       color: var(--texto);
       background-color: var(--blanco);
-      /* Cuadrícula Mathink */
       background-image:
         linear-gradient(var(--cuadricula) 1px, transparent 1px),
         linear-gradient(90deg, var(--cuadricula) 1px, transparent 1px);
@@ -49,54 +48,153 @@
     .cabecera {
       background: var(--verde);
       color: var(--blanco);
-      padding: 40px 16px 72px;
+      padding: 28px 16px 24px;
       text-align: center;
-      border-radius: 0 0 32px 32px;
     }
 
-    .logo {
-      display: block;
-      height: 56px;
-      width: auto;
-      margin: 0 auto 20px;
-    }
+    .logo { display: block; height: 48px; width: auto; margin: 0 auto 14px; }
 
     .logo-texto {
-      font-family: "Fredoka", sans-serif;
+      font-family: var(--fuente-titulo);
       font-weight: 700;
-      font-size: 1.5rem;
-      letter-spacing: 0.02em;
-      margin: 0 0 20px;
+      font-size: 1.35rem;
+      margin: 0 0 14px;
     }
 
     .logo-texto small {
       display: block;
-      font-family: "Quicksand", sans-serif;
-      font-weight: 600;
-      font-size: 0.85rem;
-      letter-spacing: 0.08em;
+      font-family: var(--fuente-texto);
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      opacity: 0.9;
     }
 
     h1 {
-      font-family: "Fredoka", sans-serif;
+      font-family: var(--fuente-titulo);
       font-weight: 700;
-      font-size: clamp(1.9rem, 6vw, 2.6rem);
+      font-size: clamp(1.8rem, 6vw, 2.4rem);
       line-height: 1.1;
-      margin: 0 0 10px;
+      margin: 0 0 6px;
+      text-wrap: balance;
     }
 
-    .subtitulo {
-      font-size: 1.15rem;
+    .subtitulo { font-size: 1.05rem; font-weight: 600; margin: 0; }
+
+    /* Barra fija: buscador + niveles */
+    .barra {
+      position: sticky;
+      top: env(safe-area-inset-top, 0px);
+      z-index: 5;
+      background: var(--blanco);
+      border-bottom: 2px solid var(--gris);
+      padding: 12px 16px;
+    }
+
+    .barra-interior {
+      max-width: 640px;
+      margin: 0 auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .buscador { position: relative; }
+
+    .buscador svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      width: 20px;
+      height: 20px;
+      transform: translateY(-50%);
+      fill: var(--texto-suave);
+      pointer-events: none;
+    }
+
+    #buscar {
+      width: 100%;
+      font: inherit;
+      font-size: 1.05rem;
       font-weight: 600;
+      color: var(--texto);
+      background: var(--blanco);
+      border: 2px solid var(--gris);
+      border-radius: 14px;
+      padding: 12px 44px 12px 44px;
+      outline: none;
+    }
+
+    #buscar:focus { border-color: var(--verde); }
+    #buscar::-webkit-search-cancel-button { display: none; }
+
+    .limpiar {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 36px;
+      height: 36px;
+      border: none;
+      border-radius: 50%;
+      background: var(--gris);
+      color: var(--texto);
+      font-size: 1.2rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .niveles {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nivel-btn {
+      flex: 1 1 0;
+      min-width: 64px;
+      font-family: var(--fuente-titulo);
+      font-weight: 700;
+      font-size: 1.05rem;
+      padding: 9px 10px;
+      border-radius: 12px;
+      border: 2px solid var(--color, var(--verde-osc));
+      background: var(--blanco);
+      color: var(--color, var(--verde-osc));
+      cursor: pointer;
+    }
+
+    .nivel-btn[aria-pressed="true"] {
+      background: var(--color, var(--verde-osc));
+      color: var(--blanco);
+    }
+
+    .nivel-btn:focus-visible, #buscar:focus-visible, .limpiar:focus-visible { outline: 3px solid var(--ambar); outline-offset: 2px; }
+
+    .conteo {
       margin: 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--texto-suave);
     }
 
     main {
-      max-width: 560px;
-      margin: -44px auto 0;
-      padding: 0 16px 48px;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 16px 16px 40px;
+    }
+
+    .grupo + .grupo { margin-top: 22px; }
+
+    .grupo-titulo {
+      font-family: var(--fuente-titulo);
+      font-weight: 700;
+      font-size: 1.3rem;
+      margin: 0 0 10px;
+      display: inline-block;
+      background: var(--color);
+      color: var(--blanco);
+      padding: 4px 14px;
+      border-radius: 10px;
     }
 
     .lista {
@@ -104,142 +202,110 @@
       margin: 0;
       padding: 0;
       display: grid;
-      gap: 14px;
+      gap: 8px;
     }
 
     .pista {
-      --color: var(--verde-osc1);
-      background: var(--color);
-      color: var(--blanco);
-      border-radius: 22px;
-      padding: 14px 16px 14px 14px;
-      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.18);
-      scroll-margin-top: 24px;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      background: var(--blanco);
+      border: 2px solid var(--gris);
+      border-left: 8px solid var(--color);
+      border-radius: 14px;
+      padding: 10px 12px;
     }
 
-    .pista.destacada {
-      outline: 4px solid var(--ambar);
-      outline-offset: 3px;
-    }
+    .pista.activa { border-color: var(--color); }
 
     .pista-fila {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
 
-    .boton-play {
+    .accion {
       flex: none;
-      width: 56px;
-      height: 56px;
+      width: 46px;
+      height: 46px;
       border-radius: 50%;
       border: none;
-      background: var(--blanco);
-      color: var(--color);
+      background: var(--color);
+      color: var(--blanco);
       display: grid;
       place-items: center;
       cursor: pointer;
-      transition: transform 0.12s ease;
+      text-decoration: none;
     }
 
-    .boton-play:hover { transform: scale(1.06); }
-    .boton-play:active { transform: scale(0.96); }
-    .boton-play:focus-visible { outline: 3px solid var(--ambar); outline-offset: 3px; }
-    .boton-play:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+    .accion:focus-visible { outline: 3px solid var(--ambar); outline-offset: 3px; }
+    .accion:disabled { background: var(--gris); color: var(--texto-suave); cursor: not-allowed; }
+    .accion svg { width: 22px; height: 22px; fill: currentColor; }
+    .accion .icono-pausa { display: none; }
+    .pista.sonando .accion .icono-play { display: none; }
+    .pista.sonando .accion .icono-pausa { display: block; }
 
-    .boton-play svg { width: 26px; height: 26px; fill: currentColor; }
-    .boton-play .icono-pausa { display: none; }
-    .pista.sonando .boton-play .icono-play { display: none; }
-    .pista.sonando .boton-play .icono-pausa { display: block; }
+    .num {
+      flex: none;
+      font-family: var(--fuente-titulo);
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--color);
+      min-width: 2ch;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
 
     .pista-texto { min-width: 0; flex: 1; }
 
-    .pista-num {
-      font-family: "Fredoka", sans-serif;
-      font-weight: 500;
-      font-size: 0.85rem;
-      opacity: 0.9;
-      margin: 0;
-    }
-
     .pista-titulo {
-      font-family: "Fredoka", sans-serif;
       font-weight: 700;
-      font-size: 1.2rem;
-      line-height: 1.2;
-      margin: 2px 0 0;
+      font-size: 1.02rem;
+      line-height: 1.25;
+      margin: 0;
       overflow-wrap: anywhere;
     }
 
     .pista-detalle {
-      font-size: 0.95rem;
+      font-size: 0.88rem;
       font-weight: 600;
+      color: var(--texto-suave);
       margin: 2px 0 0;
-      opacity: 0.95;
     }
+
+    mark { background: #FFE2A8; color: inherit; border-radius: 3px; padding: 0 1px; }
 
     .progreso {
       display: none;
       align-items: center;
       gap: 10px;
-      margin-top: 12px;
+      margin-top: 10px;
       font-size: 0.85rem;
       font-weight: 700;
       font-variant-numeric: tabular-nums;
     }
 
     .pista.activa .progreso { display: flex; }
-
-    .progreso input[type="range"] {
-      flex: 1;
-      min-width: 0;
-      accent-color: var(--blanco);
-      height: 24px;
-      cursor: pointer;
-    }
+    .progreso input[type="range"] { flex: 1; min-width: 0; accent-color: var(--color); height: 24px; cursor: pointer; }
 
     .aviso {
       display: none;
-      margin: 10px 0 0;
-      font-size: 0.9rem;
+      margin: 8px 0 0;
+      font-size: 0.88rem;
       font-weight: 600;
-      background: rgba(0, 0, 0, 0.18);
-      border-radius: 12px;
-      padding: 8px 12px;
+      color: var(--texto-suave);
     }
 
     .pista.error .aviso { display: block; }
 
     .mensaje {
       background: var(--blanco);
-      border: 2px solid var(--gris);
-      border-radius: 18px;
-      padding: 18px;
+      border: 2px dashed var(--gris);
+      border-radius: 14px;
+      padding: 20px;
       text-align: center;
       font-weight: 600;
-    }
-
-    footer {
-      text-align: center;
-      font-size: 0.95rem;
-      font-weight: 600;
-      padding: 8px 16px 40px;
-      max-width: 560px;
-      margin: 0 auto;
-    }
-
-    footer p {
-      background: var(--blanco);
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 12px;
-      margin: 0;
     }
 
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
-      .pista, .boton-play { transition: none; }
     }
   </style>
 </head>
@@ -247,29 +313,31 @@
   <header class="cabecera">
     <img class="logo" src="logo.png" alt="Mathink" onerror="this.hidden=true; document.getElementById('logo-texto').hidden=false;">
     <p class="logo-texto" id="logo-texto" hidden>Mathink<small>Método Singapur</small></p>
-    <h1 id="titulo">Audios del libro</h1>
-    <p class="subtitulo" id="subtitulo"></p>
+    <h1>Canciones del libro</h1>
+    <p class="subtitulo">Elige el nivel o busca la canción por nombre o número</p>
   </header>
 
-  <main>
-    <ol class="lista" id="lista" aria-live="polite">
-      <li class="mensaje">Cargando audios…</li>
-    </ol>
-  </main>
+  <div class="barra">
+    <div class="barra-interior">
+      <div class="buscador">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 3a7 7 0 0 1 5.6 11.2l4.6 4.6a1 1 0 0 1-1.4 1.4l-4.6-4.6A7 7 0 1 1 10 3zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg>
+        <input id="buscar" type="search" placeholder="Buscar canción…" autocomplete="off" aria-label="Buscar canción por nombre o número">
+        <button class="limpiar" id="limpiar" type="button" aria-label="Borrar búsqueda" hidden>×</button>
+      </div>
+      <div class="niveles" id="niveles" role="group" aria-label="Nivel"></div>
+      <p class="conteo" id="conteo" aria-live="polite"></p>
+    </div>
+  </div>
 
-  <footer>
-    <p id="pie"></p>
-  </footer>
+  <main id="contenido">
+    <p class="mensaje">Cargando canciones…</p>
+  </main>
 
   <template id="plantilla-pista">
     <li class="pista">
       <div class="pista-fila">
-        <button class="boton-play" type="button">
-          <svg class="icono-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
-          <svg class="icono-pausa" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4.5" height="14" rx="1.2"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.2"/></svg>
-        </button>
+        <span class="num"></span>
         <div class="pista-texto">
-          <p class="pista-num"></p>
           <p class="pista-titulo"></p>
           <p class="pista-detalle"></p>
         </div>
@@ -279,51 +347,112 @@
         <input type="range" min="0" max="100" step="0.1" value="0">
         <span class="tiempo-total">0:00</span>
       </div>
-      <p class="aviso">Este audio todavía no está disponible.</p>
+      <p class="aviso">Esta canción todavía no está disponible.</p>
     </li>
   </template>
 
   <script>
     (function () {
-      // Colores de marca Mathink que admiten texto blanco
-      var COLORES = ["#0B753B", "#F15E88", "#3674B7", "#F15B2B", "#347341", "#DC424A"];
+      // Un color de marca por nivel; si hay más niveles se repiten
+      var COLORES = ["#F15E88", "#3674B7", "#F15B2B", "#0B753B", "#DC424A", "#347341"];
+      var EXT_AUDIO = /\.(mp3|m4a|aac|wav|ogg|oga|opus|flac)(\?.*)?$/i;
 
-      var lista = document.getElementById("lista");
+      var ICONO_PLAY = '<svg class="icono-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>' +
+        '<svg class="icono-pausa" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4.5" height="14" rx="1.2"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.2"/></svg>';
+      var ICONO_ABRIR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6h-2V7.4l-7.3 7.3-1.4-1.4L16.6 6H14V4zM5 6h6v2H6v10h10v-5h2v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1z"/></svg>';
+
+      var contenido = document.getElementById("contenido");
       var plantilla = document.getElementById("plantilla-pista");
+      var buscar = document.getElementById("buscar");
+      var limpiar = document.getElementById("limpiar");
+      var nivelesEl = document.getElementById("niveles");
+      var conteo = document.getElementById("conteo");
+
+      var niveles = [];      // [{ nombre, color, pistas: [...] }]
+      var nivelActivo = "";  // "" = todos
       var audio = new Audio();
       audio.preload = "none";
-      var actual = null; // { li, pista }
+      var actual = null;     // { li, pista }
+
+      // ---------- utilidades ----------
+      function normalizar(t) {
+        return String(t || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+      }
 
       function formatoTiempo(seg) {
         if (!isFinite(seg) || seg < 0) return "0:00";
-        var m = Math.floor(seg / 60);
-        var s = Math.floor(seg % 60);
+        var m = Math.floor(seg / 60), s = Math.floor(seg % 60);
         return m + ":" + (s < 10 ? "0" : "") + s;
       }
 
-      function marcarSonando(li, sonando) {
-        li.classList.toggle("sonando", sonando);
-        var boton = li.querySelector(".boton-play");
-        var titulo = li.querySelector(".pista-titulo").textContent;
-        boton.setAttribute("aria-label", (sonando ? "Pausar: " : "Reproducir: ") + titulo);
+      // CSV sencillo con soporte de comillas ("texto, con coma").
+      // Acepta coma o punto y coma (Excel en español guarda con ";").
+      function leerCSV(texto) {
+        var filas = [], fila = [], campo = "", comillas = false;
+        texto = texto.replace(/^﻿/, "");
+        var primera = texto.split(/\r?\n/)[0];
+        var sep = (primera.split(";").length > primera.split(",").length) ? ";" : ",";
+        for (var i = 0; i < texto.length; i++) {
+          var c = texto[i];
+          if (comillas) {
+            if (c === '"' && texto[i + 1] === '"') { campo += '"'; i++; }
+            else if (c === '"') comillas = false;
+            else campo += c;
+          } else if (c === '"') comillas = true;
+          else if (c === sep) { fila.push(campo); campo = ""; }
+          else if (c === "\n" || c === "\r") {
+            if (c === "\r" && texto[i + 1] === "\n") i++;
+            fila.push(campo); filas.push(fila); fila = []; campo = "";
+          } else campo += c;
+        }
+        if (campo || fila.length) { fila.push(campo); filas.push(fila); }
+        var enc = filas.shift().map(function (h) { return normalizar(h).trim(); });
+        return filas
+          .filter(function (f) { return f.some(function (v) { return v.trim(); }); })
+          .map(function (f) {
+            var o = {};
+            enc.forEach(function (h, j) { o[h] = (f[j] || "").trim(); });
+            return o;
+          });
       }
 
-      function seleccionar(li, pista) {
-        if (actual && actual.li !== li) {
-          marcarSonando(actual.li, false);
-          actual.li.classList.remove("activa");
-        }
+      // Resalta la búsqueda dentro de un texto sin usar innerHTML con datos
+      function pintarTexto(el, texto, consulta) {
+        el.textContent = "";
+        if (!consulta) { el.textContent = texto; return; }
+        var norm = normalizar(texto), pos = norm.indexOf(consulta);
+        if (pos < 0) { el.textContent = texto; return; }
+        el.appendChild(document.createTextNode(texto.slice(0, pos)));
+        var m = document.createElement("mark");
+        m.textContent = texto.slice(pos, pos + consulta.length);
+        el.appendChild(m);
+        el.appendChild(document.createTextNode(texto.slice(pos + consulta.length)));
+      }
+
+      // ---------- reproductor ----------
+      function marcarSonando(li, sonando) {
+        li.classList.toggle("sonando", sonando);
+        var b = li.querySelector(".accion");
+        b.setAttribute("aria-label", (sonando ? "Pausar: " : "Reproducir: ") + li.dataset.titulo);
+      }
+
+      function detener() {
+        if (!actual) return;
+        audio.pause();
+        marcarSonando(actual.li, false);
+        actual.li.classList.remove("activa");
+        actual = null;
+      }
+
+      function alternar(li, pista) {
         if (!actual || actual.li !== li) {
+          detener();
           actual = { li: li, pista: pista };
-          audio.src = pista.archivo;
+          audio.src = pista.enlace;
           li.classList.add("activa");
           li.querySelector(".tiempo-actual").textContent = "0:00";
           li.querySelector("input[type=range]").value = 0;
         }
-      }
-
-      function alternar(li, pista) {
-        seleccionar(li, pista);
         if (audio.paused) {
           var p = audio.play();
           if (p && p.catch) p.catch(function (e) {
@@ -337,12 +466,12 @@
       function mostrarError() {
         if (!actual) return;
         actual.li.classList.add("error");
-        actual.li.classList.remove("activa");
-        marcarSonando(actual.li, false);
+        detener();
       }
 
       audio.addEventListener("play", function () { if (actual) marcarSonando(actual.li, true); });
       audio.addEventListener("pause", function () { if (actual) marcarSonando(actual.li, false); });
+      audio.addEventListener("ended", function () { if (actual) marcarSonando(actual.li, false); });
       audio.addEventListener("error", mostrarError);
       audio.addEventListener("loadedmetadata", function () {
         if (actual) actual.li.querySelector(".tiempo-total").textContent = formatoTiempo(audio.duration);
@@ -353,82 +482,186 @@
         var barra = actual.li.querySelector("input[type=range]");
         if (!barra.dataset.arrastrando) barra.value = (audio.currentTime / audio.duration) * 100;
       });
-      audio.addEventListener("ended", function () {
-        if (actual) marcarSonando(actual.li, false);
-      });
 
-      function crearPista(pista, indice) {
+      // ---------- construcción ----------
+      function crearPista(pista, color) {
         var li = plantilla.content.firstElementChild.cloneNode(true);
-        li.id = pista.id;
-        li.style.setProperty("--color", COLORES[indice % COLORES.length]);
-        li.querySelector(".pista-num").textContent = "Audio " + pista.id;
-        li.querySelector(".pista-titulo").textContent = pista.titulo;
+        li.style.setProperty("--color", color);
+        li.dataset.titulo = pista.titulo;
+        li.querySelector(".num").textContent = pista.numero;
         var detalle = li.querySelector(".pista-detalle");
-        if (pista.detalle) detalle.textContent = pista.detalle; else detalle.remove();
+        if (!pista.detalle) detalle.remove();
 
-        var boton = li.querySelector(".boton-play");
-        boton.setAttribute("aria-label", "Reproducir: " + pista.titulo);
-        if (!pista.archivo) {
-          boton.disabled = true;
+        var accion;
+        if (pista.enlace && EXT_AUDIO.test(pista.enlace)) {
+          // Archivo de audio: se reproduce en la página
+          accion = document.createElement("button");
+          accion.type = "button";
+          accion.innerHTML = ICONO_PLAY;
+          accion.setAttribute("aria-label", "Reproducir: " + pista.titulo);
+          accion.addEventListener("click", function () { alternar(li, pista); });
+
+          var barra = li.querySelector("input[type=range]");
+          barra.setAttribute("aria-label", "Posición en " + pista.titulo);
+          barra.addEventListener("input", function () {
+            barra.dataset.arrastrando = "1";
+            if (actual && actual.li === li && audio.duration)
+              li.querySelector(".tiempo-actual").textContent = formatoTiempo((barra.value / 100) * audio.duration);
+          });
+          barra.addEventListener("change", function () {
+            delete barra.dataset.arrastrando;
+            if (actual && actual.li === li && audio.duration) audio.currentTime = (barra.value / 100) * audio.duration;
+          });
+        } else if (pista.enlace) {
+          // Otro tipo de enlace (Drive, YouTube, SoundCloud…): se abre aparte
+          accion = document.createElement("a");
+          accion.href = pista.enlace;
+          accion.target = "_blank";
+          accion.rel = "noopener";
+          accion.innerHTML = ICONO_ABRIR;
+          accion.setAttribute("aria-label", "Abrir: " + pista.titulo);
+          accion.addEventListener("click", detener);
+          li.querySelector(".progreso").remove();
+        } else {
+          accion = document.createElement("button");
+          accion.type = "button";
+          accion.disabled = true;
+          accion.innerHTML = ICONO_PLAY;
+          accion.setAttribute("aria-label", pista.titulo + " (no disponible)");
           li.classList.add("error");
+          li.querySelector(".progreso").remove();
         }
-        boton.addEventListener("click", function () { alternar(li, pista); });
+        accion.className = "accion";
+        li.querySelector(".pista-fila").insertBefore(accion, li.querySelector(".pista-fila").firstChild);
 
-        var barra = li.querySelector("input[type=range]");
-        barra.setAttribute("aria-label", "Posición en " + pista.titulo);
-        barra.addEventListener("input", function () {
-          barra.dataset.arrastrando = "1";
-          if (actual && actual.li === li && audio.duration) {
-            li.querySelector(".tiempo-actual").textContent = formatoTiempo((barra.value / 100) * audio.duration);
-          }
-        });
-        barra.addEventListener("change", function () {
-          delete barra.dataset.arrastrando;
-          if (actual && actual.li === li && audio.duration) {
-            audio.currentTime = (barra.value / 100) * audio.duration;
-          }
-        });
+        pista.li = li;
+        pista.busqueda = normalizar(pista.titulo + " " + pista.detalle);
         return li;
       }
 
-      // Si se llega desde un QR (p. ej. .../audios/#02), resaltar ese audio
-      function irAlAudio() {
-        var id = decodeURIComponent(location.hash.replace(/^#/, ""));
-        if (!id) return;
-        var li = document.getElementById(id);
-        if (!li || !li.classList.contains("pista")) return;
-        document.querySelectorAll(".pista.destacada").forEach(function (el) { el.classList.remove("destacada"); });
-        li.classList.add("destacada");
-        li.scrollIntoView({ block: "center" });
-        var boton = li.querySelector(".boton-play");
-        if (!boton.disabled) boton.focus({ preventScroll: true });
+      function crearBotonNivel(nombre, etiqueta, color) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "nivel-btn";
+        b.textContent = etiqueta;
+        b.dataset.nivel = nombre;
+        if (color) b.style.setProperty("--color", color);
+        b.addEventListener("click", function () {
+          nivelActivo = nombre;
+          try { localStorage.setItem("mathink-nivel", nombre); } catch (e) {}
+          history.replaceState(null, "", nombre ? "#" + nombre.toLowerCase() : location.pathname);
+          aplicarFiltro();
+        });
+        nivelesEl.appendChild(b);
       }
 
-      window.addEventListener("hashchange", irAlAudio);
-
-      fetch("pistas.json", { cache: "no-cache" })
-        .then(function (r) {
-          if (!r.ok) throw new Error(r.status);
-          return r.json();
-        })
-        .then(function (datos) {
-          var libro = datos.libro || {};
-          if (libro.titulo) {
-            document.getElementById("titulo").textContent = libro.titulo;
-            document.title = libro.titulo + " · Audios";
+      function construir(filas) {
+        var porNivel = {};
+        filas.forEach(function (f) {
+          var nombre = (f.nivel || "Sin nivel").toUpperCase();
+          if (!porNivel[nombre]) {
+            porNivel[nombre] = { nombre: nombre, pistas: [] };
+            niveles.push(porNivel[nombre]);
           }
-          document.getElementById("subtitulo").textContent = libro.subtitulo || "";
-          document.getElementById("pie").textContent = libro.pie || "";
-          if (!libro.pie) document.getElementById("pie").hidden = true;
-
-          lista.innerHTML = "";
-          (datos.pistas || []).forEach(function (pista, i) {
-            lista.appendChild(crearPista(pista, i));
+          porNivel[nombre].pistas.push({
+            numero: f.numero || "",
+            titulo: f.titulo || "Sin título",
+            detalle: f.detalle || "",
+            enlace: f.enlace || ""
           });
-          irAlAudio();
+        });
+
+        contenido.innerHTML = "";
+        crearBotonNivel("", "Todos");
+        niveles.forEach(function (nivel, i) {
+          nivel.color = COLORES[i % COLORES.length];
+          crearBotonNivel(nivel.nombre, nivel.nombre, nivel.color);
+
+          var sec = document.createElement("section");
+          sec.className = "grupo";
+          sec.style.setProperty("--color", nivel.color);
+          var h = document.createElement("h2");
+          h.className = "grupo-titulo";
+          h.textContent = nivel.nombre;
+          var ol = document.createElement("ol");
+          ol.className = "lista";
+          nivel.pistas.forEach(function (p) { ol.appendChild(crearPista(p, nivel.color)); });
+          sec.appendChild(h);
+          sec.appendChild(ol);
+          nivel.seccion = sec;
+          contenido.appendChild(sec);
+        });
+
+        var vacio = document.createElement("p");
+        vacio.className = "mensaje";
+        vacio.id = "sin-resultados";
+        vacio.hidden = true;
+        contenido.appendChild(vacio);
+      }
+
+      function aplicarFiltro() {
+        var consulta = normalizar(buscar.value).trim();
+        limpiar.hidden = !buscar.value;
+        var total = 0;
+
+        nivelesEl.querySelectorAll(".nivel-btn").forEach(function (b) {
+          b.setAttribute("aria-pressed", String(b.dataset.nivel === nivelActivo));
+        });
+
+        niveles.forEach(function (nivel) {
+          var visibles = 0;
+          var nivelVisible = !nivelActivo || nivelActivo === nivel.nombre;
+          nivel.pistas.forEach(function (p) {
+            // Un número solo coincide con el número exacto de la canción
+            var coincide = !consulta || p.numero === consulta || p.busqueda.indexOf(consulta) >= 0;
+            // La canción que está sonando no se oculta, para poder pausarla
+            var ver = (nivelVisible && coincide) || (actual && actual.li === p.li);
+            p.li.hidden = !ver;
+            if (ver) {
+              if (nivelVisible && coincide) visibles++;
+              pintarTexto(p.li.querySelector(".pista-titulo"), p.titulo, consulta);
+              var d = p.li.querySelector(".pista-detalle");
+              if (d) pintarTexto(d, p.detalle, consulta);
+            }
+          });
+          nivel.seccion.hidden = !nivel.pistas.some(function (p) { return !p.li.hidden; });
+          total += visibles;
+        });
+
+        var vacio = document.getElementById("sin-resultados");
+        vacio.hidden = total > 0;
+        vacio.textContent = 'No encontramos “' + buscar.value.trim() + '”' +
+          (nivelActivo ? " en " + nivelActivo + ". Prueba con «Todos»." : ". Prueba con otra palabra.");
+
+        conteo.textContent = total === 1 ? "1 canción" : total + " canciones";
+      }
+
+      buscar.addEventListener("input", aplicarFiltro);
+      limpiar.addEventListener("click", function () { buscar.value = ""; aplicarFiltro(); buscar.focus(); });
+
+      function existe(n) { return niveles.some(function (v) { return v.nombre === n; }); }
+      function nivelDeHash() { return decodeURIComponent(location.hash.replace(/^#/, "")).toUpperCase(); }
+
+      window.addEventListener("hashchange", function () {
+        if (!niveles.length) return;
+        var n = nivelDeHash();
+        nivelActivo = existe(n) ? n : "";
+        aplicarFiltro();
+      });
+
+      fetch("pistas.csv", { cache: "no-cache" })
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+        .then(function (texto) {
+          construir(leerCSV(texto));
+          // Nivel inicial: #g3 en la dirección, o el último que usó esta persona
+          var deHash = nivelDeHash();
+          var guardado = "";
+          try { guardado = localStorage.getItem("mathink-nivel") || ""; } catch (e) {}
+          nivelActivo = existe(deHash) ? deHash : (existe(guardado) ? guardado : "");
+          aplicarFiltro();
         })
         .catch(function () {
-          lista.innerHTML = '<li class="mensaje">No se pudo cargar la lista de audios. Intenta de nuevo en un momento.</li>';
+          contenido.innerHTML = '<p class="mensaje">No se pudo cargar la lista de canciones. Revisa tu conexión e intenta de nuevo.</p>';
         });
     })();
   </script>

@@ -1,31 +1,37 @@
-# Audios del libro (Mathink)
+# Canciones del libro (Mathink)
 
-Página tipo linktree en `https://mewiag.github.io/audios/` con un reproductor por audio.
-Cada QR impreso abre la página con su audio resaltado (`.../audios/#01`, `#02`, …).
+Página en `https://mewiag.github.io/audios/`. Un solo código QR lleva a la lista
+completa. Ahí la maestra elige el nivel (G3, G4, G5) o busca por nombre o número.
+La búsqueda no distingue acentos ni mayúsculas.
 
-## Agregar o cambiar audios
+## Editar la lista de canciones
 
-1. Sube el archivo de audio (`.mp3`) a `audios/archivos/`, por ejemplo `archivos/04.mp3`.
-2. Agrega una entrada en `audios/pistas.json`:
+Toda la lista está en `audios/pistas.csv`. Se puede abrir con Excel o Google Sheets.
+Columnas:
 
-   ```json
-   { "id": "04", "titulo": "Capítulo 3 · …", "detalle": "Página 30", "archivo": "archivos/04.mp3" }
-   ```
+| nivel | numero | titulo | detalle | enlace |
+|-------|--------|--------|---------|--------|
+| G3 | 1 | Los números del 1 al 10 | Página 5 | archivos/g3-01.mp3 |
 
-   - `id` es lo que va en el QR. **Una vez impreso el libro, no lo cambies.**
-   - `detalle` es opcional.
-   - `archivo` también puede ser una URL directa a un `.mp3` en otro servidor.
-3. Cambia `titulo`, `subtitulo` y `pie` dentro de `"libro"` con los datos del libro.
+- `detalle` es opcional (por ejemplo, la página del libro).
+- `enlace` puede ser:
+  - un archivo de audio (`.mp3`, `.m4a`, `.wav`…) subido a `audios/archivos/` o en otro
+    servidor: se reproduce dentro de la página;
+  - cualquier otro enlace (Drive, YouTube, SoundCloud…): se abre en otra pestaña;
+  - vacío: la canción aparece como "todavía no disponible".
+- Se puede guardar con coma o con punto y coma como separador.
+- Los niveles aparecen en el orden en que salen en el archivo.
+- `audios/#g4` abre la página con G4 ya elegido.
 
-## Generar los códigos QR
+## Código QR
 
 ```bash
 pip install segno
 python3 scripts/generar_qr.py
 ```
 
-Crea en `audios/qr/` un SVG (para imprenta) y un PNG por audio, más `todos.svg/png`
-que lleva a la lista completa.
+Crea `audios/qr/canciones.svg` (para imprenta) y `canciones.png`.
+No cambies la dirección de la página después de imprimir.
 
 ## Logo
 
