@@ -4,153 +4,241 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#1f6f5c">
-<title>Tickets a factura</title>
+<meta name="theme-color" content="#d63a7a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Barbifacturas">
+<title>Barbifacturas</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icono.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icono.svg">
+<link rel="apple-touch-icon" href="icono-180.png">
 <style>
   :root {
-    --bg: #f6f5f1;
+    --bg: #fff6f9;
     --surface: #ffffff;
-    --text: #1d1d1b;
-    --muted: #6b6a65;
-    --border: #e2e0d8;
-    --accent: #1f6f5c;
+    --text: #2a1720;
+    --muted: #7d6570;
+    --border: #f1dbe4;
+    --accent: #d63a7a;
+    --accent-soft: #fde6ef;
     --accent-text: #ffffff;
-    --ok: #1f6f5c;
+    --ok: #1d7a4f;
+    --ok-soft: #e1f4ea;
+    --warn: #9a5b00;
+    --warn-soft: #fff1d9;
+    --wait: #6b5d64;
+    --wait-soft: #f2edef;
     --error: #b3261e;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #151614;
-      --surface: #1f201d;
-      --text: #ecebe6;
-      --muted: #a09f98;
-      --border: #34352f;
-      --accent: #4fb397;
-      --accent-text: #0f1a16;
-      --ok: #4fb397;
+      --bg: #1a1115;
+      --surface: #261a20;
+      --text: #f6eaf0;
+      --muted: #b9a3ad;
+      --border: #3a2a32;
+      --accent: #f06aa2;
+      --accent-soft: #3d2030;
+      --accent-text: #2a0d19;
+      --ok: #6fd3a0;
+      --ok-soft: #173327;
+      --warn: #f3bf6b;
+      --warn-soft: #3a2c15;
+      --wait: #c9b8c0;
+      --wait-soft: #30252a;
       --error: #f2867d;
     }
   }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  [hidden] { display: none !important; }
   html, body { margin: 0; }
   body {
     background: var(--bg);
     color: var(--text);
-    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font: 17px/1.45 ui-rounded, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     min-height: 100dvh;
-    padding: env(safe-area-inset-top) 16px calc(24px + env(safe-area-inset-bottom));
+    padding: env(safe-area-inset-top) 16px calc(32px + env(safe-area-inset-bottom));
   }
-  main { max-width: 480px; margin: 0 auto; }
-  header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 0 8px;
+  main { max-width: 460px; margin: 0 auto; }
+  header { display: flex; align-items: center; gap: 10px; padding: 20px 0 8px; }
+  header img { width: 36px; height: 36px; border-radius: 10px; }
+  header h1 { font-size: 1.35rem; margin: 0; letter-spacing: -.01em; }
+  h2 { font-size: 1.05rem; margin: 32px 0 10px; }
+  p { margin: 0 0 12px; }
+  .muted { color: var(--muted); }
+  .pantalla { display: none; }
+  .pantalla.activa { display: block; }
+
+  .pregunta { font-weight: 600; margin: 16px 0 10px; }
+  .saludo { font-size: 1.5rem; font-weight: 700; margin: 16px 0 0; }
+  .personas { display: flex; flex-direction: column; gap: 12px; margin-top: 28px; }
+  .persona {
+    display: flex; align-items: center; gap: 14px; padding: 18px 20px;
+    border-radius: 20px; border: 2px solid var(--border); background: var(--surface);
+    color: var(--text); font: inherit; font-size: 1.2rem; font-weight: 600; cursor: pointer; text-align: left;
   }
-  h1 { font-size: 1.25rem; margin: 0; }
-  h2 { font-size: 1rem; margin: 24px 0 8px; }
-  .icon-btn {
-    background: none; border: 1px solid var(--border); color: var(--text);
-    border-radius: 10px; padding: 8px 12px; font: inherit; cursor: pointer;
+  .persona:active { border-color: var(--accent); background: var(--accent-soft); }
+  .inicial {
+    flex: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--accent); color: var(--accent-text); font-weight: 700;
   }
-  .perfiles { display: flex; gap: 8px; margin: 12px 0 24px; }
-  .perfiles button {
-    flex: 1; padding: 12px; border-radius: 12px; font: inherit; cursor: pointer;
-    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+
+  .grande {
+    display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%;
+    padding: 22px; margin-top: 20px; border-radius: 22px; border: none; cursor: pointer;
+    background: var(--accent); color: var(--accent-text); font: inherit; font-size: 1.2rem; font-weight: 700;
+    box-shadow: 0 8px 24px -10px var(--accent);
   }
-  .perfiles button[aria-pressed="true"] {
-    background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600;
+  .grande svg { width: 30px; height: 30px; flex: none; }
+  .secundario {
+    display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+    padding: 16px; margin-top: 10px; border-radius: 18px; cursor: pointer;
+    background: var(--surface); color: var(--text); border: 2px solid var(--border);
+    font: inherit; font-weight: 600;
   }
-  .camara {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
-    width: 100%; aspect-ratio: 1 / 0.8; border-radius: 24px; cursor: pointer;
-    background: var(--accent); color: var(--accent-text); border: none; font: inherit; font-size: 1.15rem; font-weight: 600;
+  .secundario svg { width: 22px; height: 22px; flex: none; }
+  button:disabled { opacity: .55; cursor: default; }
+  .enlace {
+    background: none; border: none; padding: 8px 0; color: var(--accent); font: inherit;
+    font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
   }
-  .camara svg { width: 72px; height: 72px; }
-  .preview { display: none; }
-  .preview img {
-    width: 100%; max-height: 55dvh; object-fit: contain; border-radius: 16px;
-    background: var(--surface); border: 1px solid var(--border);
+
+  .vista-previa {
+    width: 100%; max-height: 44dvh; object-fit: contain; display: block; margin: 8px 0 16px;
+    border-radius: 18px; background: var(--surface); border: 1px solid var(--border);
   }
-  label { display: block; font-size: .9rem; color: var(--muted); margin: 12px 0 4px; }
-  input[type="text"], input[type="url"], input[type="password"] {
-    width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
+  .pdf {
+    display: flex; align-items: center; gap: 12px; padding: 20px; margin: 8px 0 16px;
+    border-radius: 18px; background: var(--surface); border: 1px solid var(--border);
+    overflow-wrap: anywhere;
+  }
+  .pdf svg { width: 40px; height: 40px; flex: none; color: var(--accent); }
+  input[type="text"] {
+    width: 100%; padding: 14px; border-radius: 14px; border: 2px solid var(--border);
     background: var(--surface); color: var(--text); font: inherit;
   }
-  .acciones { display: flex; gap: 8px; margin-top: 16px; }
-  .btn {
-    flex: 1; padding: 14px; border-radius: 12px; font: inherit; font-weight: 600; cursor: pointer;
-    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  input[type="text"]:focus { outline: none; border-color: var(--accent); }
+
+  .centro { text-align: center; padding-top: 48px; }
+  .centro .grande, .centro .secundario { margin-top: 28px; }
+  .circulo {
+    width: 96px; height: 96px; margin: 0 auto 20px; border-radius: 50%;
+    display: grid; place-items: center; background: var(--ok-soft); color: var(--ok);
   }
-  .btn.primario { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-  .btn:disabled { opacity: .55; cursor: default; }
-  .estado { margin: 16px 0 0; min-height: 1.5em; }
-  .estado.ok { color: var(--ok); }
-  .estado.error { color: var(--error); }
-  .historial { list-style: none; padding: 0; margin: 0; font-size: .9rem; color: var(--muted); }
-  .historial li { padding: 8px 0; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
-  .ajustes { display: none; }
-  .nota { font-size: .85rem; color: var(--muted); }
-  [hidden] { display: none !important; }
+  .circulo svg { width: 52px; height: 52px; }
+  .circulo.error { background: var(--warn-soft); color: var(--warn); }
+  .centro h2 { font-size: 1.5rem; margin: 0 0 8px; }
+  .girando {
+    width: 56px; height: 56px; margin: 0 auto 20px; border-radius: 50%;
+    border: 5px solid var(--accent-soft); border-top-color: var(--accent);
+    animation: girar 0.9s linear infinite;
+  }
+  @keyframes girar { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .girando { animation-duration: 3s; } }
+
+  .tickets { list-style: none; padding: 0; margin: 0; }
+  .ticket {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 14px 16px; margin-bottom: 8px; border-radius: 16px;
+    background: var(--surface); border: 1px solid var(--border);
+  }
+  .ticket .info { min-width: 0; }
+  .ticket strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ticket small { color: var(--muted); }
+  .ticket .motivo { display: block; color: var(--warn); font-size: .88rem; margin-top: 2px; }
+  .etiqueta { flex: none; font-size: .82rem; font-weight: 700; padding: 5px 10px; border-radius: 999px; }
+  .etiqueta.facturado { background: var(--ok-soft); color: var(--ok); }
+  .etiqueta.en_espera { background: var(--wait-soft); color: var(--wait); }
+  .etiqueta.problema { background: var(--warn-soft); color: var(--warn); }
+  .vacio { padding: 18px; border-radius: 16px; border: 2px dashed var(--border); color: var(--muted); text-align: center; }
 </style>
 </head>
 <body>
 <main>
   <header>
-    <h1>Tickets a factura</h1>
-    <button class="icon-btn" id="btn-ajustes" type="button">Ajustes</button>
+    <img src="icono.svg" alt="">
+    <h1>Barbifacturas</h1>
   </header>
 
-  <section id="vista-captura">
-    <div class="perfiles" id="perfiles" role="group" aria-label="¿De quién es el ticket?"></div>
-
-    <div id="paso-camara">
-      <button class="camara" id="btn-camara" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/>
-          <circle cx="12" cy="13" r="3.5"/>
-        </svg>
-        Tomar foto del ticket
-      </button>
-      <input id="archivo" type="file" accept="image/*" capture="environment" hidden>
+  <!-- Sin activar -->
+  <section class="pantalla" id="p-bienvenida">
+    <div class="centro">
+      <p style="font-size:1.25rem;font-weight:700">¡Hola!</p>
+      <p class="muted">Para empezar, abre el link de activación que te mandaron. Solo se hace una vez.</p>
     </div>
-
-    <div class="preview" id="paso-preview">
-      <img id="img-preview" alt="Vista previa del ticket">
-      <p class="nota">Revisa que se lean el total, la fecha y los datos para facturar (folio, URL del portal).</p>
-      <label for="nota">Nota para Claude (opcional)</label>
-      <input id="nota" type="text" maxlength="500" placeholder="Ej. el folio está al reverso">
-      <div class="acciones">
-        <button class="btn" id="btn-repetir" type="button">Repetir</button>
-        <button class="btn primario" id="btn-enviar" type="button">Enviar</button>
-      </div>
-    </div>
-
-    <p class="estado" id="estado" role="status" aria-live="polite"></p>
-
-    <h2>Enviados desde este teléfono</h2>
-    <ul class="historial" id="historial"></ul>
   </section>
 
-  <section class="ajustes" id="vista-ajustes">
-    <h2>Ajustes</h2>
-    <p class="nota">Se guardan solo en este teléfono. La clave nunca va al repositorio.</p>
-    <label for="cfg-url">URL del receptor (Apps Script)</label>
-    <input id="cfg-url" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
-    <label for="cfg-clave">Clave</label>
-    <input id="cfg-clave" type="password" autocomplete="off">
-    <label for="cfg-perfiles">Perfiles (separados por coma, iguales a los del script)</label>
-    <input id="cfg-perfiles" type="text" placeholder="perfil1, perfil2" autocomplete="off">
-    <div class="acciones">
-      <button class="btn" id="btn-probar" type="button">Probar conexión</button>
-      <button class="btn primario" id="btn-guardar" type="button">Guardar</button>
+  <!-- ¿Quién eres? -->
+  <section class="pantalla" id="p-quien">
+    <div class="centro">
+      <h2 id="pregunta-quien">¿Quién eres?</h2>
+      <p class="muted">Tus facturas se hacen con tus datos fiscales.</p>
+      <div class="personas" id="personas" role="group" aria-labelledby="pregunta-quien"></div>
     </div>
-    <div class="acciones">
-      <button class="btn" id="btn-compartir" type="button">Copiar link para otro teléfono</button>
+  </section>
+
+  <!-- Inicio -->
+  <section class="pantalla" id="p-inicio">
+    <p class="saludo" id="saludo"></p>
+    <button class="enlace" id="btn-cambiar" type="button"></button>
+
+    <button class="grande" id="btn-foto" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>
+      Tomar foto del ticket
+    </button>
+    <button class="secundario" id="btn-subir" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+      Subir foto o PDF
+    </button>
+    <input id="in-camara" type="file" accept="image/*" capture="environment" hidden>
+    <input id="in-archivo" type="file" accept="image/*,application/pdf" hidden>
+
+    <h2>Mis tickets</h2>
+    <ul class="tickets" id="tickets"></ul>
+  </section>
+
+  <!-- Revisar antes de enviar -->
+  <section class="pantalla" id="p-revisar">
+    <p class="pregunta">¿Se lee bien el ticket?</p>
+    <p class="muted">Que se vean el total, la fecha y los datos para facturar.</p>
+    <img class="vista-previa" id="vista-previa" alt="Foto del ticket" hidden>
+    <div class="pdf" id="vista-pdf" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7z"/><path d="M14 3v4h4"/></svg>
+      <span id="nombre-pdf"></span>
     </div>
-    <p class="nota">Ese link incluye la clave. Mándalo solo por un canal privado.</p>
-    <p class="estado" id="estado-ajustes" role="status" aria-live="polite"></p>
+    <button class="enlace" id="btn-nota" type="button">+ Agregar una nota (opcional)</button>
+    <input id="nota" type="text" maxlength="500" placeholder="Ej. el código para facturar está atrás" hidden>
+    <button class="grande" id="btn-enviar" type="button">Sí, enviar</button>
+    <button class="secundario" id="btn-otra" type="button">No, tomar otra</button>
+  </section>
+
+  <!-- Enviando -->
+  <section class="pantalla" id="p-enviando">
+    <div class="centro">
+      <div class="girando" aria-hidden="true"></div>
+      <h2>Enviando…</h2>
+      <p class="muted">No cierres la app.</p>
+    </div>
+  </section>
+
+  <!-- Listo -->
+  <section class="pantalla" id="p-listo">
+    <div class="centro">
+      <div class="circulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h2>¡Listo!</h2>
+      <p class="muted" id="texto-listo"></p>
+      <button class="grande" id="btn-otro" type="button">Facturar otro ticket</button>
+    </div>
+  </section>
+
+  <!-- Error -->
+  <section class="pantalla" id="p-error">
+    <div class="centro">
+      <div class="circulo error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 7v6M12 17h.01"/></svg></div>
+      <h2>No se pudo enviar</h2>
+      <p class="muted" id="texto-error"></p>
+      <button class="grande" id="btn-reintentar" type="button">Intentar de nuevo</button>
+      <button class="secundario" id="btn-cancelar" type="button">Cancelar</button>
+    </div>
   </section>
 </main>
 
@@ -158,9 +246,9 @@
 (function () {
   'use strict';
 
-  const LADO_MAXIMO = 2000;   // px; suficiente para leer un ticket
+  const LADO_MAXIMO = 2000;            // px: suficiente para leer un ticket
   const CALIDAD_JPEG = 0.85;
-  const MAX_HISTORIAL = 15;
+  const PDF_MAXIMO = 10 * 1024 * 1024;
 
   const $ = (id) => document.getElementById(id);
 
@@ -174,91 +262,146 @@
     try { localStorage.setItem(clave, JSON.stringify(valor)); } catch (e) { /* sin almacenamiento */ }
   }
 
-  let config = leer('config', { url: '', clave: '', perfiles: [] });
-  let perfilActivo = leer('perfil', null);
-  let imagenLista = null; // { base64, tipo }
+  let config = leer('config', null);
+  let persona = leer('persona', null);
+  let pendiente = null; // { archivo (base64), tipo }
 
-  // Configuración recibida por link: #u=...&k=...&p=...
+  // Activación por link: #u=<receptor>&k=<clave>&p=Nombre1,Nombre2 (yo=Nombre opcional)
   if (location.hash.length > 1) {
     const h = new URLSearchParams(location.hash.slice(1));
     if (h.get('u') && h.get('k')) {
       config = {
         url: h.get('u'),
         clave: h.get('k'),
-        perfiles: (h.get('p') || '').split(',').map((s) => s.trim()).filter(Boolean),
+        personas: (h.get('p') || '').split(',').map((s) => s.trim()).filter(Boolean),
       };
       guardar('config', config);
+      if (h.get('yo')) { persona = h.get('yo'); guardar('persona', persona); }
     }
     history.replaceState(null, '', location.pathname);
   }
+  // Si el link se abre con la app ya abierta, solo cambia el hash: hay que recargar.
+  window.addEventListener('hashchange', () => location.reload());
 
-  function configCompleta() {
-    return config.url && config.clave && config.perfiles.length > 0;
+  function mostrar(id) {
+    document.querySelectorAll('.pantalla').forEach((s) => s.classList.toggle('activa', s.id === id));
+    window.scrollTo(0, 0);
   }
 
-  function mostrarEstado(el, texto, tipo) {
-    el.textContent = texto;
-    el.className = 'estado' + (tipo ? ' ' + tipo : '');
-  }
-
-  function pintarPerfiles() {
-    const cont = $('perfiles');
+  function preguntarQuien() {
+    const nombres = config.personas;
+    $('pregunta-quien').textContent = nombres.length === 2
+      ? '¿Eres ' + nombres[0] + ' o ' + nombres[1] + '?'
+      : '¿Quién eres?';
+    const cont = $('personas');
     cont.textContent = '';
-    if (!config.perfiles.includes(perfilActivo)) perfilActivo = config.perfiles[0] || null;
-    config.perfiles.forEach((p) => {
+    nombres.forEach((nombre) => {
       const b = document.createElement('button');
       b.type = 'button';
-      b.textContent = p;
-      b.setAttribute('aria-pressed', String(p === perfilActivo));
+      b.className = 'persona';
+      const ini = document.createElement('span');
+      ini.className = 'inicial';
+      ini.textContent = nombre.charAt(0).toUpperCase();
+      const txt = document.createElement('span');
+      txt.textContent = nombre;
+      b.append(ini, txt);
       b.addEventListener('click', () => {
-        perfilActivo = p;
-        guardar('perfil', p);
-        pintarPerfiles();
+        persona = nombre;
+        guardar('persona', nombre);
+        volverAlInicio();
       });
       cont.appendChild(b);
     });
+    mostrar('p-quien');
   }
 
-  function pintarHistorial() {
-    const ul = $('historial');
+  function pintarSaludo() {
+    $('saludo').textContent = 'Hola, ' + persona;
+    $('btn-cambiar').textContent = '¿No eres ' + persona + '? Cambiar';
+  }
+
+  // ---- Lista de tickets ----
+
+  const ETIQUETAS = { facturado: 'Facturado', en_espera: 'En proceso', problema: 'Necesita ayuda' };
+
+  function cuando(iso) {
+    const d = new Date(iso);
+    const hoy = new Date();
+    const ayer = new Date(); ayer.setDate(hoy.getDate() - 1);
+    const hora = d.toLocaleTimeString('es-MX', { hour: 'numeric', minute: '2-digit' });
+    if (d.toDateString() === hoy.toDateString()) return 'Hoy, ' + hora;
+    if (d.toDateString() === ayer.toDateString()) return 'Ayer, ' + hora;
+    return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+  }
+
+  function pintarTickets(lista) {
+    const ul = $('tickets');
     ul.textContent = '';
-    const items = leer('historial', []);
-    if (items.length === 0) {
+    if (!lista) {
       const li = document.createElement('li');
-      li.textContent = 'Todavía nada.';
+      li.className = 'vacio';
+      li.textContent = 'Cargando…';
       ul.appendChild(li);
       return;
     }
-    items.forEach((it) => {
+    if (lista.length === 0) {
       const li = document.createElement('li');
-      li.textContent = new Date(it.fecha).toLocaleString('es-MX') + ' · ' + it.perfil + ' · ' + it.archivo;
+      li.className = 'vacio';
+      li.textContent = 'Aquí vas a ver tus tickets y si ya están facturados.';
+      ul.appendChild(li);
+      return;
+    }
+    lista.forEach((t) => {
+      const li = document.createElement('li');
+      li.className = 'ticket';
+      const info = document.createElement('div');
+      info.className = 'info';
+      const titulo = document.createElement('strong');
+      titulo.textContent = (t.comercio || 'Ticket') + (t.total ? ' · $' + String(t.total).replace(/^\$/, '') : '');
+      const fecha = document.createElement('small');
+      fecha.textContent = cuando(t.subido);
+      info.append(titulo, fecha);
+      if (t.estado === 'problema' && t.motivo) {
+        const m = document.createElement('span');
+        m.className = 'motivo';
+        m.textContent = t.motivo;
+        info.appendChild(m);
+      }
+      const et = document.createElement('span');
+      et.className = 'etiqueta ' + t.estado;
+      et.textContent = ETIQUETAS[t.estado] || t.estado;
+      li.append(info, et);
       ul.appendChild(li);
     });
   }
 
-  function vista(nombre) {
-    const ajustes = nombre === 'ajustes';
-    $('vista-ajustes').style.display = ajustes ? 'block' : 'none';
-    $('vista-captura').style.display = ajustes ? 'none' : 'block';
-    $('btn-ajustes').textContent = ajustes ? 'Cerrar' : 'Ajustes';
-    if (ajustes) {
-      $('cfg-url').value = config.url;
-      $('cfg-clave').value = config.clave;
-      $('cfg-perfiles').value = config.perfiles.join(', ');
-      mostrarEstado($('estado-ajustes'), '');
+  let consulta = 0;
+  async function cargarTickets() {
+    const esta = ++consulta;
+    pintarTickets(null);
+    try {
+      const r = await llamar({ accion: 'estado', perfil: persona });
+      if (esta === consulta) pintarTickets(r.tickets);
+    } catch (e) {
+      if (esta === consulta) pintarTickets([]);
     }
   }
 
-  function pasoCamara() {
-    imagenLista = null;
-    $('archivo').value = '';
-    $('nota').value = '';
-    $('paso-camara').style.display = 'block';
-    $('paso-preview').style.display = 'none';
+  // ---- Envío ----
+
+  // Apps Script: un POST con text/plain evita la verificación CORS previa.
+  async function llamar(cuerpo) {
+    const r = await fetch(config.url, {
+      method: 'POST',
+      body: JSON.stringify(Object.assign({ clave: config.clave }, cuerpo)),
+    });
+    if (!r.ok) throw new Error('servidor');
+    const datos = await r.json();
+    if (!datos.ok) throw new Error(datos.error || 'servidor');
+    return datos;
   }
 
-  // Reduce la foto antes de subirla: un ticket no necesita 12 MP.
-  function comprimir(file) {
+  function reducirFoto(file) {
     return new Promise((resolve, reject) => {
       const url = URL.createObjectURL(file);
       const img = new Image();
@@ -269,130 +412,114 @@
         canvas.height = Math.round(img.naturalHeight * escala);
         canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
         URL.revokeObjectURL(url);
-        const dataUrl = canvas.toDataURL('image/jpeg', CALIDAD_JPEG);
-        resolve({ dataUrl, base64: dataUrl.split(',')[1], tipo: 'image/jpeg' });
+        resolve(canvas.toDataURL('image/jpeg', CALIDAD_JPEG));
       };
-      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('No se pudo leer la imagen')); };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('No pudimos abrir esa foto.')); };
       img.src = url;
     });
   }
 
-  // Apps Script: un POST con text/plain evita la verificación CORS previa.
-  async function llamar(cuerpo, cfg) {
-    const r = await fetch(cfg.url, { method: 'POST', body: JSON.stringify(cuerpo) });
-    if (!r.ok) throw new Error('El receptor respondió ' + r.status);
-    const datos = await r.json();
-    if (!datos.ok) throw new Error(datos.error || 'Error desconocido');
-    return datos;
+  function leerComoDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(fr.result);
+      fr.onerror = () => reject(new Error('No pudimos abrir ese archivo.'));
+      fr.readAsDataURL(file);
+    });
   }
 
-  $('btn-camara').addEventListener('click', () => {
-    if (!configCompleta()) {
-      vista('ajustes');
-      mostrarEstado($('estado-ajustes'), 'Primero configura el receptor.', 'error');
-      return;
-    }
-    $('archivo').click();
-  });
-
-  $('archivo').addEventListener('change', async (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    mostrarEstado($('estado'), 'Preparando foto…');
+  async function prepararArchivo(file) {
+    $('nota').value = '';
+    $('nota').hidden = true;
+    $('btn-nota').hidden = false;
     try {
-      const r = await comprimir(file);
-      imagenLista = { base64: r.base64, tipo: r.tipo };
-      $('img-preview').src = r.dataUrl;
-      $('paso-camara').style.display = 'none';
-      $('paso-preview').style.display = 'block';
-      mostrarEstado($('estado'), '');
-    } catch (err) {
-      mostrarEstado($('estado'), err.message, 'error');
-    }
-  });
-
-  $('btn-repetir').addEventListener('click', () => {
-    pasoCamara();
-    $('archivo').click();
-  });
-
-  $('btn-enviar').addEventListener('click', async () => {
-    if (!imagenLista || !perfilActivo) return;
-    const boton = $('btn-enviar');
-    boton.disabled = true;
-    mostrarEstado($('estado'), 'Enviando…');
-    try {
-      const r = await llamar({
-        clave: config.clave,
-        perfil: perfilActivo,
-        tipo: imagenLista.tipo,
-        imagen: imagenLista.base64,
-        nota: $('nota').value.trim(),
-      }, config);
-      const historial = leer('historial', []);
-      historial.unshift({ fecha: Date.now(), perfil: perfilActivo, archivo: r.archivo });
-      guardar('historial', historial.slice(0, MAX_HISTORIAL));
-      pintarHistorial();
-      pasoCamara();
-      mostrarEstado($('estado'), 'Listo. Claude lo procesa en las próximas 24 horas.', 'ok');
-    } catch (err) {
-      mostrarEstado($('estado'), 'No se envió: ' + err.message + '. Puedes volver a intentar.', 'error');
-    } finally {
-      boton.disabled = false;
-    }
-  });
-
-  function leerFormulario() {
-    return {
-      url: $('cfg-url').value.trim(),
-      clave: $('cfg-clave').value.trim(),
-      perfiles: $('cfg-perfiles').value.split(',').map((s) => s.trim()).filter(Boolean),
-    };
-  }
-
-  $('btn-guardar').addEventListener('click', () => {
-    config = leerFormulario();
-    guardar('config', config);
-    pintarPerfiles();
-    mostrarEstado($('estado-ajustes'), 'Guardado.', 'ok');
-  });
-
-  $('btn-probar').addEventListener('click', async () => {
-    const cfg = leerFormulario();
-    mostrarEstado($('estado-ajustes'), 'Probando…');
-    try {
-      const r = await llamar({ clave: cfg.clave, accion: 'probar' }, cfg);
-      const faltan = cfg.perfiles.filter((p) => !r.perfiles.includes(p));
-      if (faltan.length) {
-        mostrarEstado($('estado-ajustes'), 'Conecta, pero el script no conoce: ' + faltan.join(', '), 'error');
+      if (file.type === 'application/pdf') {
+        if (file.size > PDF_MAXIMO) throw new Error('Ese PDF es demasiado grande (máximo 10 MB).');
+        const dataUrl = await leerComoDataUrl(file);
+        pendiente = { archivo: dataUrl.split(',')[1], tipo: 'application/pdf' };
+        $('nombre-pdf').textContent = file.name;
+        $('vista-pdf').hidden = false;
+        $('vista-previa').hidden = true;
       } else {
-        mostrarEstado($('estado-ajustes'), 'Conexión correcta. Perfiles del script: ' + r.perfiles.join(', '), 'ok');
+        const dataUrl = await reducirFoto(file);
+        pendiente = { archivo: dataUrl.split(',')[1], tipo: 'image/jpeg' };
+        $('vista-previa').src = dataUrl;
+        $('vista-previa').hidden = false;
+        $('vista-pdf').hidden = true;
       }
+      $('btn-otra').textContent = file.type === 'application/pdf' ? 'No, elegir otro' : 'No, tomar otra';
+      mostrar('p-revisar');
     } catch (err) {
-      mostrarEstado($('estado-ajustes'), 'Falló: ' + err.message, 'error');
+      mostrarError(err.message);
     }
-  });
+  }
 
-  $('btn-compartir').addEventListener('click', async () => {
-    const cfg = leerFormulario();
-    const h = new URLSearchParams({ u: cfg.url, k: cfg.clave, p: cfg.perfiles.join(',') });
-    const link = location.origin + location.pathname + '#' + h.toString();
+  function mostrarError(texto) {
+    $('texto-error').textContent = texto;
+    $('btn-reintentar').hidden = !pendiente;
+    mostrar('p-error');
+  }
+
+  async function enviar() {
+    mostrar('p-enviando');
     try {
-      await navigator.clipboard.writeText(link);
-      mostrarEstado($('estado-ajustes'), 'Link copiado.', 'ok');
-    } catch (e) {
-      prompt('Copia este link:', link);
+      await llamar({
+        perfil: persona,
+        tipo: pendiente.tipo,
+        archivo: pendiente.archivo,
+        nota: $('nota').value.trim(),
+      });
+      pendiente = null;
+      $('texto-listo').textContent = 'Te va a llegar la factura por correo. Si algo falla, lo vas a ver en "Mis tickets".';
+      mostrar('p-listo');
+    } catch (err) {
+      const sinRed = err instanceof TypeError || err.message === 'servidor';
+      mostrarError(sinRed ? 'Revisa que tengas internet e inténtalo otra vez.' : err.message);
     }
-  });
+  }
 
-  $('btn-ajustes').addEventListener('click', () => {
-    vista($('vista-ajustes').style.display === 'block' ? 'captura' : 'ajustes');
-    pintarPerfiles();
-  });
+  function volverAlInicio() {
+    pendiente = null;
+    $('in-camara').value = '';
+    $('in-archivo').value = '';
+    pintarSaludo();
+    mostrar('p-inicio');
+    cargarTickets();
+  }
 
-  pintarPerfiles();
-  pintarHistorial();
-  vista(configCompleta() ? 'captura' : 'ajustes');
+  // ---- Arranque ----
+
+  if (!config || !config.url || !config.clave || config.personas.length === 0) {
+    mostrar('p-bienvenida');
+    return;
+  }
+
+  $('btn-foto').addEventListener('click', () => $('in-camara').click());
+  $('btn-subir').addEventListener('click', () => $('in-archivo').click());
+  ['in-camara', 'in-archivo'].forEach((id) => {
+    $(id).addEventListener('change', (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (f) prepararArchivo(f);
+    });
+  });
+  $('btn-nota').addEventListener('click', () => {
+    $('btn-nota').hidden = true;
+    $('nota').hidden = false;
+    $('nota').focus();
+  });
+  $('btn-enviar').addEventListener('click', enviar);
+  $('btn-otra').addEventListener('click', () => {
+    const usarCamara = pendiente && pendiente.tipo !== 'application/pdf';
+    volverAlInicio();
+    $(usarCamara ? 'in-camara' : 'in-archivo').click();
+  });
+  $('btn-otro').addEventListener('click', volverAlInicio);
+  $('btn-reintentar').addEventListener('click', enviar);
+  $('btn-cancelar').addEventListener('click', volverAlInicio);
+  $('btn-cambiar').addEventListener('click', preguntarQuien);
+
+  if (config.personas.includes(persona)) volverAlInicio();
+  else preguntarQuien();
 })();
 </script>
 </body>

@@ -1,116 +1,134 @@
 /**
- * Receptor de tickets para la app de facturas (mewiag.github.io/facturas/).
+ * Barbifacturas: receptor de tickets.
  *
- * Recibe la foto que manda la app y la guarda en tu Google Drive, en
- * "Facturas automáticas/pendientes". Nada se guarda en GitHub.
+ * Recibe la foto o PDF que manda la app y lo guarda en la carpeta
+ * "Barbifacturas/Tickets por facturar" de Google Drive. También le dice
+ * a la app en qué va cada ticket.
  *
- * Instalación: ver facturas/CONFIGURAR.md en el repositorio.
+ * Esta copia del repositorio no trae la clave ni las carpetas. La copia
+ * lista para pegar está en el Drive de la dueña de la cuenta.
  */
 
-// Edita estos nombres ANTES de correr configurar(). Cortos, sin espacios ni acentos.
-const PERFILES_INICIALES = ['perfil1', 'perfil2'];
+const CLAVE = '__CLAVE__';
+const CARPETAS = {
+  porFacturar: '__CARPETA_POR_FACTURAR__',
+  facturados: '__CARPETA_FACTURADOS__',
+  conProblema: '__CARPETA_CON_PROBLEMA__',
+};
 
-const NOMBRE_CARPETA_RAIZ = 'Facturas automáticas';
-const SUBCARPETAS = ['pendientes', 'procesados', 'manuales', 'facturas'];
-const TAMANO_MAXIMO = 10 * 1024 * 1024; // 10 MB
-const TIPOS_PERMITIDOS = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
+// Disparador por API de la tarea programada de Claude (claude.ai/code/routines).
+// Si se deja vacío, los tickets esperan a la corrida diaria.
+const DISPARADOR_URL = '__DISPARADOR_URL__';
+const DISPARADOR_TOKEN = '__DISPARADOR_TOKEN__';
+const PAUSA_ENTRE_DISPAROS = 15 * 60; // segundos
 
-/** Córrelo una vez desde el editor. Crea carpetas, el documento de perfiles y la clave. */
-function configurar() {
-  const props = PropertiesService.getScriptProperties();
-  if (props.getProperty('CARPETA_PENDIENTES')) {
-    Logger.log('Ya estaba configurado. Clave: %s', props.getProperty('CLAVE'));
-    Logger.log('Perfiles: %s', props.getProperty('PERFILES'));
-    return;
-  }
-
-  const raiz = DriveApp.createFolder(NOMBRE_CARPETA_RAIZ);
-  const ids = {};
-  SUBCARPETAS.forEach(function (nombre) {
-    ids[nombre] = raiz.createFolder(nombre).getId();
-  });
-
-  const doc = DocumentApp.create('Perfiles fiscales');
-  doc.getBody().setText(plantillaPerfiles(PERFILES_INICIALES));
-  doc.saveAndClose();
-  DriveApp.getFileById(doc.getId()).moveTo(raiz);
-
-  const clave = Utilities.getUuid();
-  props.setProperties({
-    CLAVE: clave,
-    PERFILES: PERFILES_INICIALES.join(','),
-    CARPETA_PENDIENTES: ids.pendientes,
-  });
-
-  Logger.log('Listo. Carpeta: %s', raiz.getUrl());
-  Logger.log('CLAVE (cópiala en la app): %s', clave);
-  Logger.log('Perfiles: %s', PERFILES_INICIALES.join(', '));
-  Logger.log('Ahora llena el documento "Perfiles fiscales" dentro de la carpeta.');
-}
-
-function plantillaPerfiles(perfiles) {
-  return perfiles.map(function (p) {
-    return [
-      '=== PERFIL: ' + p + ' ===',
-      'Correo al que se envían las facturas: ',
-      'RFC: ',
-      'Nombre o razón social (exacto como en la Constancia de Situación Fiscal): ',
-      'Código postal del domicilio fiscal: ',
-      'Régimen fiscal (clave y nombre): ',
-      'Uso de CFDI (ej. G03 - Gastos en general): ',
-      'Forma de pago por defecto si el portal la pide (opcional): ',
-      'Notas para Claude (opcional): ',
-      '',
-    ].join('\n');
-  }).join('\n');
-}
+const TAMANO_MAXIMO = 15 * 1024 * 1024; // 15 MB
+const TIPOS_PERMITIDOS = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'application/pdf': 'pdf',
+};
 
 function doPost(e) {
-  const props = PropertiesService.getScriptProperties();
   let datos;
   try {
     datos = JSON.parse(e.postData.contents);
   } catch (err) {
     return responder({ ok: false, error: 'Solicitud inválida' });
   }
-
-  if (!datos.clave || datos.clave !== props.getProperty('CLAVE')) {
-    return responder({ ok: false, error: 'Clave incorrecta' });
-  }
-  if (datos.accion === 'probar') {
-    return responder({ ok: true, perfiles: props.getProperty('PERFILES').split(',') });
+  if (datos.clave !== CLAVE) {
+    return responder({ ok: false, error: 'Este link ya no es válido' });
   }
 
-  const perfiles = props.getProperty('PERFILES').split(',');
-  if (perfiles.indexOf(datos.perfil) === -1) {
-    return responder({ ok: false, error: 'Perfil desconocido: ' + datos.perfil });
-  }
+  if (datos.accion === 'probar') return responder({ ok: true });
+  if (datos.accion === 'estado') return responder({ ok: true, tickets: estado(datos.perfil) });
+  return guardarTicket(datos);
+}
+
+function guardarTicket(datos) {
+  const perfil = String(datos.perfil || '').trim().slice(0, 40);
+  if (!perfil) return responder({ ok: false, error: 'Falta elegir de quién es el ticket' });
+
   const ext = TIPOS_PERMITIDOS[datos.tipo];
-  if (!ext || !datos.imagen) {
-    return responder({ ok: false, error: 'Falta la imagen o el formato no es válido' });
+  if (!ext || !datos.archivo) {
+    return responder({ ok: false, error: 'Solo se aceptan fotos o PDF' });
   }
-  const bytes = Utilities.base64Decode(datos.imagen);
+  const bytes = Utilities.base64Decode(datos.archivo);
   if (bytes.length > TAMANO_MAXIMO) {
-    return responder({ ok: false, error: 'La imagen pesa más de 10 MB' });
+    return responder({ ok: false, error: 'El archivo es demasiado grande' });
   }
 
   const ahora = new Date();
   const sello = Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'yyyy-MM-dd_HHmmss');
-  const nombre = sello + '_' + datos.perfil + '.' + ext;
-  const carpeta = DriveApp.getFolderById(props.getProperty('CARPETA_PENDIENTES'));
-  const archivo = carpeta.createFile(Utilities.newBlob(bytes, datos.tipo, nombre));
+  const nombre = sello + '_' + paraNombreDeArchivo(perfil) + '.' + ext;
+  const archivo = DriveApp.getFolderById(CARPETAS.porFacturar)
+    .createFile(Utilities.newBlob(bytes, datos.tipo, nombre));
   archivo.setDescription(JSON.stringify({
-    perfil: datos.perfil,
+    perfil: perfil,
     nota: String(datos.nota || '').slice(0, 500),
     subido: ahora.toISOString(),
     intentos: 0,
   }));
 
-  return responder({ ok: true, archivo: nombre });
+  avisarAClaude();
+  return responder({ ok: true });
+}
+
+/** Arranca la sesión de Claude, como mucho una vez cada PAUSA_ENTRE_DISPAROS. */
+function avisarAClaude() {
+  if (!/^https:/.test(DISPARADOR_URL) || !DISPARADOR_TOKEN || DISPARADOR_TOKEN.indexOf('__') === 0) return;
+  const cache = CacheService.getScriptCache();
+  if (cache.get('disparado')) return;
+  cache.put('disparado', '1', PAUSA_ENTRE_DISPAROS);
+  try {
+    UrlFetchApp.fetch(DISPARADOR_URL, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        'Authorization': 'Bearer ' + DISPARADOR_TOKEN,
+        'anthropic-beta': 'experimental-cc-routine-2026-04-01',
+        'anthropic-version': '2023-06-01',
+      },
+      payload: JSON.stringify({ text: 'Llegó un ticket nuevo.' }),
+      muteHttpExceptions: true,
+    });
+  } catch (err) {
+    // Si falla, la corrida diaria lo recoge.
+  }
+}
+
+/** Los últimos tickets de un perfil, con su estado, para la pantalla "Mis tickets". */
+function estado(perfil) {
+  const tickets = [];
+  [['porFacturar', 'en_espera'], ['facturados', 'facturado'], ['conProblema', 'problema']]
+    .forEach(function (par) {
+      const archivos = DriveApp.getFolderById(CARPETAS[par[0]]).getFiles();
+      while (archivos.hasNext()) {
+        const f = archivos.next();
+        let d = {};
+        try { d = JSON.parse(f.getDescription() || '{}'); } catch (err) { /* descripción libre */ }
+        if (d.perfil !== perfil) continue;
+        tickets.push({
+          estado: par[1],
+          subido: d.subido || f.getDateCreated().toISOString(),
+          comercio: d.comercio || '',
+          total: d.total || '',
+          motivo: d.motivo || '',
+        });
+      }
+    });
+  tickets.sort(function (a, b) { return a.subido < b.subido ? 1 : -1; });
+  return tickets.slice(0, 20);
+}
+
+function paraNombreDeArchivo(texto) {
+  return texto.normalize('NFD').split('').filter(function (c) { return c.charCodeAt(0) < 128; }).join('')
+    .replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'perfil';
 }
 
 function doGet() {
-  return responder({ ok: true, servicio: 'receptor de tickets' });
+  return responder({ ok: true, servicio: 'Barbifacturas' });
 }
 
 function responder(obj) {
