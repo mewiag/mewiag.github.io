@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1f6f5c">
+<title>Tickets a factura</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icono.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icono.svg">
+<style>
+  :root {
+    --bg: #f6f5f1;
+    --surface: #ffffff;
+    --text: #1d1d1b;
+    --muted: #6b6a65;
+    --border: #e2e0d8;
+    --accent: #1f6f5c;
+    --accent-text: #ffffff;
+    --ok: #1f6f5c;
+    --error: #b3261e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151614;
+      --surface: #1f201d;
+      --text: #ecebe6;
+      --muted: #a09f98;
+      --border: #34352f;
+      --accent: #4fb397;
+      --accent-text: #0f1a16;
+      --ok: #4fb397;
+      --error: #f2867d;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100dvh;
+    padding: env(safe-area-inset-top) 16px calc(24px + env(safe-area-inset-bottom));
+  }
+  main { max-width: 480px; margin: 0 auto; }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 0 8px;
+  }
+  h1 { font-size: 1.25rem; margin: 0; }
+  h2 { font-size: 1rem; margin: 24px 0 8px; }
+  .icon-btn {
+    background: none; border: 1px solid var(--border); color: var(--text);
+    border-radius: 10px; padding: 8px 12px; font: inherit; cursor: pointer;
+  }
+  .perfiles { display: flex; gap: 8px; margin: 12px 0 24px; }
+  .perfiles button {
+    flex: 1; padding: 12px; border-radius: 12px; font: inherit; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  }
+  .perfiles button[aria-pressed="true"] {
+    background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600;
+  }
+  .camara {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    width: 100%; aspect-ratio: 1 / 0.8; border-radius: 24px; cursor: pointer;
+    background: var(--accent); color: var(--accent-text); border: none; font: inherit; font-size: 1.15rem; font-weight: 600;
+  }
+  .camara svg { width: 72px; height: 72px; }
+  .preview { display: none; }
+  .preview img {
+    width: 100%; max-height: 55dvh; object-fit: contain; border-radius: 16px;
+    background: var(--surface); border: 1px solid var(--border);
+  }
+  label { display: block; font-size: .9rem; color: var(--muted); margin: 12px 0 4px; }
+  input[type="text"], input[type="url"], input[type="password"] {
+    width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text); font: inherit;
+  }
+  .acciones { display: flex; gap: 8px; margin-top: 16px; }
+  .btn {
+    flex: 1; padding: 14px; border-radius: 12px; font: inherit; font-weight: 600; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  }
+  .btn.primario { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .btn:disabled { opacity: .55; cursor: default; }
+  .estado { margin: 16px 0 0; min-height: 1.5em; }
+  .estado.ok { color: var(--ok); }
+  .estado.error { color: var(--error); }
+  .historial { list-style: none; padding: 0; margin: 0; font-size: .9rem; color: var(--muted); }
+  .historial li { padding: 8px 0; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+  .ajustes { display: none; }
+  .nota { font-size: .85rem; color: var(--muted); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Tickets a factura</h1>
+    <button class="icon-btn" id="btn-ajustes" type="button">Ajustes</button>
+  </header>
+
+  <section id="vista-captura">
+    <div class="perfiles" id="perfiles" role="group" aria-label="¿De quién es el ticket?"></div>
+
+    <div id="paso-camara">
+      <button class="camara" id="btn-camara" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/>
+          <circle cx="12" cy="13" r="3.5"/>
+        </svg>
+        Tomar foto del ticket
+      </button>
+      <input id="archivo" type="file" accept="image/*" capture="environment" hidden>
+    </div>
+
+    <div class="preview" id="paso-preview">
+      <img id="img-preview" alt="Vista previa del ticket">
+      <p class="nota">Revisa que se lean el total, la fecha y los datos para facturar (folio, URL del portal).</p>
+      <label for="nota">Nota para Claude (opcional)</label>
+      <input id="nota" type="text" maxlength="500" placeholder="Ej. el folio está al reverso">
+      <div class="acciones">
+        <button class="btn" id="btn-repetir" type="button">Repetir</button>
+        <button class="btn primario" id="btn-enviar" type="button">Enviar</button>
+      </div>
+    </div>
+
+    <p class="estado" id="estado" role="status" aria-live="polite"></p>
+
+    <h2>Enviados desde este teléfono</h2>
+    <ul class="historial" id="historial"></ul>
+  </section>
+
+  <section class="ajustes" id="vista-ajustes">
+    <h2>Ajustes</h2>
+    <p class="nota">Se guardan solo en este teléfono. La clave nunca va al repositorio.</p>
+    <label for="cfg-url">URL del receptor (Apps Script)</label>
+    <input id="cfg-url" type="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
+    <label for="cfg-clave">Clave</label>
+    <input id="cfg-clave" type="password" autocomplete="off">
+    <label for="cfg-perfiles">Perfiles (separados por coma, iguales a los del script)</label>
+    <input id="cfg-perfiles" type="text" placeholder="perfil1, perfil2" autocomplete="off">
+    <div class="acciones">
+      <button class="btn" id="btn-probar" type="button">Probar conexión</button>
+      <button class="btn primario" id="btn-guardar" type="button">Guardar</button>
+    </div>
+    <div class="acciones">
+      <button class="btn" id="btn-compartir" type="button">Copiar link para otro teléfono</button>
+    </div>
+    <p class="nota">Ese link incluye la clave. Mándalo solo por un canal privado.</p>
+    <p class="estado" id="estado-ajustes" role="status" aria-live="polite"></p>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const LADO_MAXIMO = 2000;   // px; suficiente para leer un ticket
+  const CALIDAD_JPEG = 0.85;
+  const MAX_HISTORIAL = 15;
+
+  const $ = (id) => document.getElementById(id);
+
+  function leer(clave, porDefecto) {
+    try {
+      const v = localStorage.getItem(clave);
+      return v === null ? porDefecto : JSON.parse(v);
+    } catch (e) { return porDefecto; }
+  }
+  function guardar(clave, valor) {
+    try { localStorage.setItem(clave, JSON.stringify(valor)); } catch (e) { /* sin almacenamiento */ }
+  }
+
+  let config = leer('config', { url: '', clave: '', perfiles: [] });
+  let perfilActivo = leer('perfil', null);
+  let imagenLista = null; // { base64, tipo }
+
+  // Configuración recibida por link: #u=...&k=...&p=...
+  if (location.hash.length > 1) {
+    const h = new URLSearchParams(location.hash.slice(1));
+    if (h.get('u') && h.get('k')) {
+      config = {
+        url: h.get('u'),
+        clave: h.get('k'),
+        perfiles: (h.get('p') || '').split(',').map((s) => s.trim()).filter(Boolean),
+      };
+      guardar('config', config);
+    }
+    history.replaceState(null, '', location.pathname);
+  }
+
+  function configCompleta() {
+    return config.url && config.clave && config.perfiles.length > 0;
+  }
+
+  function mostrarEstado(el, texto, tipo) {
+    el.textContent = texto;
+    el.className = 'estado' + (tipo ? ' ' + tipo : '');
+  }
+
+  function pintarPerfiles() {
+    const cont = $('perfiles');
+    cont.textContent = '';
+    if (!config.perfiles.includes(perfilActivo)) perfilActivo = config.perfiles[0] || null;
+    config.perfiles.forEach((p) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = p;
+      b.setAttribute('aria-pressed', String(p === perfilActivo));
+      b.addEventListener('click', () => {
+        perfilActivo = p;
+        guardar('perfil', p);
+        pintarPerfiles();
+      });
+      cont.appendChild(b);
+    });
+  }
+
+  function pintarHistorial() {
+    const ul = $('historial');
+    ul.textContent = '';
+    const items = leer('historial', []);
+    if (items.length === 0) {
+      const li = document.createElement('li');
+      li.textContent = 'Todavía nada.';
+      ul.appendChild(li);
+      return;
+    }
+    items.forEach((it) => {
+      const li = document.createElement('li');
+      li.textContent = new Date(it.fecha).toLocaleString('es-MX') + ' · ' + it.perfil + ' · ' + it.archivo;
+      ul.appendChild(li);
+    });
+  }
+
+  function vista(nombre) {
+    const ajustes = nombre === 'ajustes';
+    $('vista-ajustes').style.display = ajustes ? 'block' : 'none';
+    $('vista-captura').style.display = ajustes ? 'none' : 'block';
+    $('btn-ajustes').textContent = ajustes ? 'Cerrar' : 'Ajustes';
+    if (ajustes) {
+      $('cfg-url').value = config.url;
+      $('cfg-clave').value = config.clave;
+      $('cfg-perfiles').value = config.perfiles.join(', ');
+      mostrarEstado($('estado-ajustes'), '');
+    }
+  }
+
+  function pasoCamara() {
+    imagenLista = null;
+    $('archivo').value = '';
+    $('nota').value = '';
+    $('paso-camara').style.display = 'block';
+    $('paso-preview').style.display = 'none';
+  }
+
+  // Reduce la foto antes de subirla: un ticket no necesita 12 MP.
+  function comprimir(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const escala = Math.min(1, LADO_MAXIMO / Math.max(img.naturalWidth, img.naturalHeight));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.naturalWidth * escala);
+        canvas.height = Math.round(img.naturalHeight * escala);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        const dataUrl = canvas.toDataURL('image/jpeg', CALIDAD_JPEG);
+        resolve({ dataUrl, base64: dataUrl.split(',')[1], tipo: 'image/jpeg' });
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('No se pudo leer la imagen')); };
+      img.src = url;
+    });
+  }
+
+  // Apps Script: un POST con text/plain evita la verificación CORS previa.
+  async function llamar(cuerpo, cfg) {
+    const r = await fetch(cfg.url, { method: 'POST', body: JSON.stringify(cuerpo) });
+    if (!r.ok) throw new Error('El receptor respondió ' + r.status);
+    const datos = await r.json();
+    if (!datos.ok) throw new Error(datos.error || 'Error desconocido');
+    return datos;
+  }
+
+  $('btn-camara').addEventListener('click', () => {
+    if (!configCompleta()) {
+      vista('ajustes');
+      mostrarEstado($('estado-ajustes'), 'Primero configura el receptor.', 'error');
+      return;
+    }
+    $('archivo').click();
+  });
+
+  $('archivo').addEventListener('change', async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    mostrarEstado($('estado'), 'Preparando foto…');
+    try {
+      const r = await comprimir(file);
+      imagenLista = { base64: r.base64, tipo: r.tipo };
+      $('img-preview').src = r.dataUrl;
+      $('paso-camara').style.display = 'none';
+      $('paso-preview').style.display = 'block';
+      mostrarEstado($('estado'), '');
+    } catch (err) {
+      mostrarEstado($('estado'), err.message, 'error');
+    }
+  });
+
+  $('btn-repetir').addEventListener('click', () => {
+    pasoCamara();
+    $('archivo').click();
+  });
+
+  $('btn-enviar').addEventListener('click', async () => {
+    if (!imagenLista || !perfilActivo) return;
+    const boton = $('btn-enviar');
+    boton.disabled = true;
+    mostrarEstado($('estado'), 'Enviando…');
+    try {
+      const r = await llamar({
+        clave: config.clave,
+        perfil: perfilActivo,
+        tipo: imagenLista.tipo,
+        imagen: imagenLista.base64,
+        nota: $('nota').value.trim(),
+      }, config);
+      const historial = leer('historial', []);
+      historial.unshift({ fecha: Date.now(), perfil: perfilActivo, archivo: r.archivo });
+      guardar('historial', historial.slice(0, MAX_HISTORIAL));
+      pintarHistorial();
+      pasoCamara();
+      mostrarEstado($('estado'), 'Listo. Claude lo procesa en las próximas 24 horas.', 'ok');
+    } catch (err) {
+      mostrarEstado($('estado'), 'No se envió: ' + err.message + '. Puedes volver a intentar.', 'error');
+    } finally {
+      boton.disabled = false;
+    }
+  });
+
+  function leerFormulario() {
+    return {
+      url: $('cfg-url').value.trim(),
+      clave: $('cfg-clave').value.trim(),
+      perfiles: $('cfg-perfiles').value.split(',').map((s) => s.trim()).filter(Boolean),
+    };
+  }
+
+  $('btn-guardar').addEventListener('click', () => {
+    config = leerFormulario();
+    guardar('config', config);
+    pintarPerfiles();
+    mostrarEstado($('estado-ajustes'), 'Guardado.', 'ok');
+  });
+
+  $('btn-probar').addEventListener('click', async () => {
+    const cfg = leerFormulario();
+    mostrarEstado($('estado-ajustes'), 'Probando…');
+    try {
+      const r = await llamar({ clave: cfg.clave, accion: 'probar' }, cfg);
+      const faltan = cfg.perfiles.filter((p) => !r.perfiles.includes(p));
+      if (faltan.length) {
+        mostrarEstado($('estado-ajustes'), 'Conecta, pero el script no conoce: ' + faltan.join(', '), 'error');
+      } else {
+        mostrarEstado($('estado-ajustes'), 'Conexión correcta. Perfiles del script: ' + r.perfiles.join(', '), 'ok');
+      }
+    } catch (err) {
+      mostrarEstado($('estado-ajustes'), 'Falló: ' + err.message, 'error');
+    }
+  });
+
+  $('btn-compartir').addEventListener('click', async () => {
+    const cfg = leerFormulario();
+    const h = new URLSearchParams({ u: cfg.url, k: cfg.clave, p: cfg.perfiles.join(',') });
+    const link = location.origin + location.pathname + '#' + h.toString();
+    try {
+      await navigator.clipboard.writeText(link);
+      mostrarEstado($('estado-ajustes'), 'Link copiado.', 'ok');
+    } catch (e) {
+      prompt('Copia este link:', link);
+    }
+  });
+
+  $('btn-ajustes').addEventListener('click', () => {
+    vista($('vista-ajustes').style.display === 'block' ? 'captura' : 'ajustes');
+    pintarPerfiles();
+  });
+
+  pintarPerfiles();
+  pintarHistorial();
+  vista(configCompleta() ? 'captura' : 'ajustes');
+})();
+</script>
+</body>
+</html>
