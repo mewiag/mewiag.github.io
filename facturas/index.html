@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#ff79b8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Barbifacturas">
+<title>Barbifacturas</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icono.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icono-180.png">
+<meta name="color-scheme" content="only light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: only light;
+    --rosa: #ff3d97;
+    --rosa-claro: #ff79b8;
+    --rosa-suave: #ffe3f0;
+    --rosa-borde: #ffc9e2;
+    --lila: #b98cff;
+    --lila-suave: #efe5ff;
+    --texto: #5a1a3c;
+    --texto-suave: #a0627f;
+    --blanco: #ffffff;
+    --menta: #1f8a5b;
+    --menta-suave: #d9f7ea;
+    --durazno: #c2571a;
+    --durazno-suave: #ffe8d9;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  html { background: #ffe9f4; }
+  body {
+    color: var(--texto);
+    font: 18px/1.45 "Fredoka", ui-rounded, system-ui, sans-serif;
+    min-height: 100dvh;
+    padding: env(safe-area-inset-top) 16px calc(32px + env(safe-area-inset-bottom));
+    background:
+      radial-gradient(circle at 12% 8%, rgba(255,255,255,.9) 0 2px, transparent 3px),
+      radial-gradient(circle at 88% 18%, rgba(255,255,255,.9) 0 2px, transparent 3px),
+      radial-gradient(circle at 70% 60%, rgba(255,255,255,.8) 0 1.5px, transparent 2.5px),
+      radial-gradient(circle at 20% 75%, rgba(255,255,255,.8) 0 1.5px, transparent 2.5px),
+      linear-gradient(165deg, #ffd6ea 0%, #ffeef6 45%, #f1e6ff 100%);
+    background-attachment: fixed;
+  }
+  main { max-width: 460px; margin: 0 auto; }
+
+  header { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 22px 0 6px; }
+  header img { width: 44px; height: 44px; border-radius: 14px; box-shadow: 0 6px 16px -6px var(--rosa); }
+  header h1 {
+    font-family: "Pacifico", cursive; font-weight: 400; font-size: 1.9rem; margin: 0;
+    color: var(--rosa); text-shadow: 0 2px 0 #fff;
+  }
+  header .brillo { font-size: 1.3rem; }
+
+  h2 { font-size: 1.15rem; font-weight: 600; margin: 32px 0 12px; }
+  p { margin: 0 0 12px; }
+  .muted { color: var(--texto-suave); }
+  .pantalla { display: none; }
+  .pantalla.activa { display: block; animation: aparecer .25s ease-out; }
+  @keyframes aparecer { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .pregunta { font-weight: 600; font-size: 1.15rem; margin: 16px 0 6px; }
+  .saludo { font-size: 1.7rem; font-weight: 700; margin: 18px 0 0; text-align: center; }
+  #btn-cambiar { display: block; margin: 0 auto; }
+
+  .personas { display: flex; flex-direction: column; gap: 14px; margin-top: 28px; }
+  .persona {
+    display: flex; align-items: center; gap: 16px; padding: 18px 22px;
+    border-radius: 28px; border: 3px solid var(--rosa-borde); background: var(--blanco);
+    color: var(--texto); font: inherit; font-size: 1.35rem; font-weight: 600; cursor: pointer; text-align: left;
+    box-shadow: 0 10px 24px -14px var(--rosa);
+  }
+  .persona:active { transform: scale(.98); border-color: var(--rosa); }
+  .inicial {
+    flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--rosa-claro), var(--lila)); color: #fff; font-weight: 700;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.08);
+  }
+
+  .grande {
+    display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%;
+    padding: 24px; margin-top: 22px; border-radius: 999px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--rosa-claro) 0%, var(--rosa) 60%, #f0368c 100%);
+    color: #fff; font: inherit; font-size: 1.3rem; font-weight: 600;
+    box-shadow: 0 14px 28px -12px var(--rosa), inset 0 2px 0 rgba(255,255,255,.35);
+  }
+  .grande:active { transform: scale(.98); }
+  .grande svg { width: 30px; height: 30px; flex: none; }
+  .secundario {
+    display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+    padding: 18px; margin-top: 12px; border-radius: 999px; cursor: pointer;
+    background: var(--blanco); color: var(--rosa); border: 3px solid var(--rosa-borde);
+    font: inherit; font-weight: 600;
+  }
+  .secundario:active { transform: scale(.98); }
+  .secundario svg { width: 24px; height: 24px; flex: none; }
+  button:disabled { opacity: .55; cursor: default; }
+  .enlace {
+    background: none; border: none; padding: 8px 0; color: var(--rosa); font: inherit; font-size: .95rem;
+    font-weight: 500; cursor: pointer; text-decoration: underline; text-decoration-style: wavy;
+    text-decoration-color: var(--rosa-borde); text-underline-offset: 5px;
+  }
+
+  .vista-previa {
+    width: 100%; max-height: 44dvh; object-fit: contain; display: block; margin: 8px 0 16px;
+    border-radius: 24px; background: var(--blanco); border: 3px solid var(--rosa-borde);
+  }
+  .pdf {
+    display: flex; align-items: center; gap: 12px; padding: 20px; margin: 8px 0 16px;
+    border-radius: 24px; background: var(--blanco); border: 3px solid var(--rosa-borde);
+    overflow-wrap: anywhere;
+  }
+  .pdf svg { width: 40px; height: 40px; flex: none; color: var(--rosa); }
+  input[type="text"] {
+    width: 100%; padding: 16px 18px; border-radius: 20px; border: 3px solid var(--rosa-borde);
+    background: var(--blanco); color: var(--texto); font: inherit;
+  }
+  input[type="text"]::placeholder { color: #d29ab5; }
+  input[type="text"]:focus { outline: none; border-color: var(--rosa); }
+
+  .centro { text-align: center; padding-top: 40px; }
+  .centro .grande, .centro .secundario { margin-top: 28px; }
+  .circulo {
+    width: 112px; height: 112px; margin: 0 auto 20px; border-radius: 50%;
+    display: grid; place-items: center; color: #fff;
+    background: linear-gradient(135deg, var(--rosa-claro), var(--lila));
+    box-shadow: 0 16px 32px -14px var(--rosa);
+  }
+  .circulo svg { width: 58px; height: 58px; }
+  .circulo.error { background: linear-gradient(135deg, #ffc58f, #ff8fb8); }
+  .centro h2 { font-size: 1.8rem; font-weight: 700; margin: 0 0 8px; color: var(--rosa); }
+  .girando {
+    width: 64px; height: 64px; margin: 0 auto 20px; border-radius: 50%;
+    border: 6px solid var(--rosa-suave); border-top-color: var(--rosa); border-right-color: var(--lila);
+    animation: girar 0.9s linear infinite;
+  }
+  @keyframes girar { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .girando { animation-duration: 3s; }
+    .pantalla.activa { animation: none; }
+  }
+
+  .tickets { list-style: none; padding: 0; margin: 0; }
+  .ticket {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 14px 18px; margin-bottom: 10px; border-radius: 22px;
+    background: rgba(255,255,255,.85); border: 2px solid var(--rosa-borde);
+  }
+  .ticket .info { min-width: 0; }
+  .ticket strong { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ticket small { color: var(--texto-suave); font-size: .85rem; }
+  .ticket .motivo { display: block; color: var(--durazno); font-size: .88rem; margin-top: 2px; }
+  .etiqueta { flex: none; font-size: .8rem; font-weight: 600; padding: 6px 12px; border-radius: 999px; }
+  .etiqueta.facturado { background: var(--menta-suave); color: var(--menta); }
+  .etiqueta.en_espera { background: var(--lila-suave); color: #7a4cc2; }
+  .etiqueta.problema { background: var(--durazno-suave); color: var(--durazno); }
+  .vacio {
+    padding: 20px; border-radius: 22px; border: 3px dashed var(--rosa-borde);
+    color: var(--texto-suave); text-align: center; background: rgba(255,255,255,.5);
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="icono.svg" alt="">
+    <h1>Barbifacturas</h1>
+    <span class="brillo" aria-hidden="true">✨</span>
+  </header>
+
+  <!-- Sin activar -->
+  <section class="pantalla" id="p-bienvenida">
+    <div class="centro">
+      <p style="font-size:1.6rem;font-weight:700">¡Hola, bonita! ✨</p>
+      <p class="muted">Para empezar, abre el link de activación que te mandaron. Solo se hace una vez.</p>
+    </div>
+  </section>
+
+  <!-- ¿Quién eres? -->
+  <section class="pantalla" id="p-quien">
+    <div class="centro">
+      <h2 id="pregunta-quien">¿Quién eres?</h2>
+      <p class="muted">Tus facturas se hacen con tus datos fiscales.</p>
+      <div class="personas" id="personas" role="group" aria-labelledby="pregunta-quien"></div>
+    </div>
+  </section>
+
+  <!-- Inicio -->
+  <section class="pantalla" id="p-inicio">
+    <p class="saludo" id="saludo"></p>
+    <button class="enlace" id="btn-cambiar" type="button"></button>
+
+    <button class="grande" id="btn-foto" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>
+      Tomar foto del ticket
+    </button>
+    <button class="secundario" id="btn-subir" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+      Subir foto o PDF
+    </button>
+    <input id="in-camara" type="file" accept="image/*" capture="environment" hidden>
+    <input id="in-archivo" type="file" accept="image/*,application/pdf" hidden>
+
+    <h2>Mis tickets</h2>
+    <ul class="tickets" id="tickets"></ul>
+  </section>
+
+  <!-- Revisar antes de enviar -->
+  <section class="pantalla" id="p-revisar">
+    <p class="pregunta">¿Se lee bien el ticket?</p>
+    <p class="muted">Que se vean el total, la fecha y los datos para facturar.</p>
+    <img class="vista-previa" id="vista-previa" alt="Foto del ticket" hidden>
+    <div class="pdf" id="vista-pdf" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V7z"/><path d="M14 3v4h4"/></svg>
+      <span id="nombre-pdf"></span>
+    </div>
+    <button class="enlace" id="btn-nota" type="button">+ Agregar una nota (opcional)</button>
+    <input id="nota" type="text" maxlength="500" placeholder="Ej. el código para facturar está atrás" hidden>
+    <button class="grande" id="btn-enviar" type="button">Sí, enviar</button>
+    <button class="secundario" id="btn-otra" type="button">No, tomar otra</button>
+  </section>
+
+  <!-- Enviando -->
+  <section class="pantalla" id="p-enviando">
+    <div class="centro">
+      <div class="girando" aria-hidden="true"></div>
+      <h2>Enviando…</h2>
+      <p class="muted">No cierres la app.</p>
+    </div>
+  </section>
+
+  <!-- Listo -->
+  <section class="pantalla" id="p-listo">
+    <div class="centro">
+      <div class="circulo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+      <h2>¡Listo! 💖</h2>
+      <p class="muted" id="texto-listo"></p>
+      <button class="grande" id="btn-otro" type="button">Facturar otro ticket</button>
+    </div>
+  </section>
+
+  <!-- Error -->
+  <section class="pantalla" id="p-error">
+    <div class="centro">
+      <div class="circulo error"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 7v6M12 17h.01"/></svg></div>
+      <h2>No se pudo enviar</h2>
+      <p class="muted" id="texto-error"></p>
+      <button class="grande" id="btn-reintentar" type="button">Intentar de nuevo</button>
+      <button class="secundario" id="btn-cancelar" type="button">Cancelar</button>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  const LADO_MAXIMO = 2000;            // px: suficiente para leer un ticket
+  const CALIDAD_JPEG = 0.85;
+  const PDF_MAXIMO = 10 * 1024 * 1024;
+
+  const $ = (id) => document.getElementById(id);
+
+  function leer(clave, porDefecto) {
+    try {
+      const v = localStorage.getItem(clave);
+      return v === null ? porDefecto : JSON.parse(v);
+    } catch (e) { return porDefecto; }
+  }
+  function guardar(clave, valor) {
+    try { localStorage.setItem(clave, JSON.stringify(valor)); } catch (e) { /* sin almacenamiento */ }
+  }
+
+  let config = leer('config', null);
+  let persona = leer('persona', null);
+  let pendiente = null; // { archivo (base64), tipo }
+
+  // Activación por link: #u=<receptor>&k=<clave>&p=Nombre1,Nombre2 (yo=Nombre opcional)
+  if (location.hash.length > 1) {
+    const h = new URLSearchParams(location.hash.slice(1));
+    if (h.get('u') && h.get('k')) {
+      config = {
+        url: h.get('u'),
+        clave: h.get('k'),
+        personas: (h.get('p') || '').split(',').map((s) => s.trim()).filter(Boolean),
+      };
+      guardar('config', config);
+      if (h.get('yo')) { persona = h.get('yo'); guardar('persona', persona); }
+    }
+    history.replaceState(null, '', location.pathname);
+  }
+  // Si el link se abre con la app ya abierta, solo cambia el hash: hay que recargar.
+  window.addEventListener('hashchange', () => location.reload());
+
+  function mostrar(id) {
+    document.querySelectorAll('.pantalla').forEach((s) => s.classList.toggle('activa', s.id === id));
+    window.scrollTo(0, 0);
+  }
+
+  function preguntarQuien() {
+    const nombres = config.personas;
+    $('pregunta-quien').textContent = nombres.length === 2
+      ? '¿Eres ' + nombres[0] + ' o ' + nombres[1] + '?'
+      : '¿Quién eres?';
+    const cont = $('personas');
+    cont.textContent = '';
+    nombres.forEach((nombre) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'persona';
+      const ini = document.createElement('span');
+      ini.className = 'inicial';
+      ini.textContent = nombre.charAt(0).toUpperCase();
+      const txt = document.createElement('span');
+      txt.textContent = nombre;
+      b.append(ini, txt);
+      b.addEventListener('click', () => {
+        persona = nombre;
+        guardar('persona', nombre);
+        volverAlInicio();
+      });
+      cont.appendChild(b);
+    });
+    mostrar('p-quien');
+  }
+
+  function pintarSaludo() {
+    $('saludo').textContent = 'Hola, ' + persona + ' 💕';
+    $('btn-cambiar').textContent = '¿No eres ' + persona + '? Cambiar';
+  }
+
+  // ---- Lista de tickets ----
+
+  const ETIQUETAS = { facturado: 'Facturado', en_espera: 'En proceso', problema: 'Necesita ayuda' };
+
+  function cuando(iso) {
+    const d = new Date(iso);
+    const hoy = new Date();
+    const ayer = new Date(); ayer.setDate(hoy.getDate() - 1);
+    const hora = d.toLocaleTimeString('es-MX', { hour: 'numeric', minute: '2-digit' });
+    if (d.toDateString() === hoy.toDateString()) return 'Hoy, ' + hora;
+    if (d.toDateString() === ayer.toDateString()) return 'Ayer, ' + hora;
+    return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+  }
+
+  function pintarTickets(lista) {
+    const ul = $('tickets');
+    ul.textContent = '';
+    if (!lista) {
+      const li = document.createElement('li');
+      li.className = 'vacio';
+      li.textContent = 'Cargando…';
+      ul.appendChild(li);
+      return;
+    }
+    if (lista.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'vacio';
+      li.textContent = 'Aquí vas a ver tus tickets y si ya están facturados.';
+      ul.appendChild(li);
+      return;
+    }
+    lista.forEach((t) => {
+      const li = document.createElement('li');
+      li.className = 'ticket';
+      const info = document.createElement('div');
+      info.className = 'info';
+      const titulo = document.createElement('strong');
+      titulo.textContent = (t.comercio || 'Ticket') + (t.total ? ' · $' + String(t.total).replace(/^\$/, '') : '');
+      const fecha = document.createElement('small');
+      fecha.textContent = cuando(t.subido);
+      info.append(titulo, fecha);
+      if (t.estado === 'problema' && t.motivo) {
+        const m = document.createElement('span');
+        m.className = 'motivo';
+        m.textContent = t.motivo;
+        info.appendChild(m);
+      }
+      const et = document.createElement('span');
+      et.className = 'etiqueta ' + t.estado;
+      et.textContent = ETIQUETAS[t.estado] || t.estado;
+      li.append(info, et);
+      ul.appendChild(li);
+    });
+  }
+
+  let consulta = 0;
+  async function cargarTickets() {
+    const esta = ++consulta;
+    pintarTickets(null);
+    try {
+      const r = await llamar({ accion: 'estado', perfil: persona });
+      if (esta === consulta) pintarTickets(r.tickets);
+    } catch (e) {
+      if (esta === consulta) pintarTickets([]);
+    }
+  }
+
+  // ---- Envío ----
+
+  // Apps Script: un POST con text/plain evita la verificación CORS previa.
+  async function llamar(cuerpo) {
+    const r = await fetch(config.url, {
+      method: 'POST',
+      body: JSON.stringify(Object.assign({ clave: config.clave }, cuerpo)),
+    });
+    if (!r.ok) throw new Error('servidor');
+    const datos = await r.json();
+    if (!datos.ok) throw new Error(datos.error || 'servidor');
+    return datos;
+  }
+
+  function reducirFoto(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const escala = Math.min(1, LADO_MAXIMO / Math.max(img.naturalWidth, img.naturalHeight));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.naturalWidth * escala);
+        canvas.height = Math.round(img.naturalHeight * escala);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/jpeg', CALIDAD_JPEG));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('No pudimos abrir esa foto.')); };
+      img.src = url;
+    });
+  }
+
+  function leerComoDataUrl(file) {
+    return new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(fr.result);
+      fr.onerror = () => reject(new Error('No pudimos abrir ese archivo.'));
+      fr.readAsDataURL(file);
+    });
+  }
+
+  async function prepararArchivo(file) {
+    $('nota').value = '';
+    $('nota').hidden = true;
+    $('btn-nota').hidden = false;
+    try {
+      if (file.type === 'application/pdf') {
+        if (file.size > PDF_MAXIMO) throw new Error('Ese PDF es demasiado grande (máximo 10 MB).');
+        const dataUrl = await leerComoDataUrl(file);
+        pendiente = { archivo: dataUrl.split(',')[1], tipo: 'application/pdf' };
+        $('nombre-pdf').textContent = file.name;
+        $('vista-pdf').hidden = false;
+        $('vista-previa').hidden = true;
+      } else {
+        const dataUrl = await reducirFoto(file);
+        pendiente = { archivo: dataUrl.split(',')[1], tipo: 'image/jpeg' };
+        $('vista-previa').src = dataUrl;
+        $('vista-previa').hidden = false;
+        $('vista-pdf').hidden = true;
+      }
+      $('btn-otra').textContent = file.type === 'application/pdf' ? 'No, elegir otro' : 'No, tomar otra';
+      mostrar('p-revisar');
+    } catch (err) {
+      mostrarError(err.message);
+    }
+  }
+
+  function mostrarError(texto) {
+    $('texto-error').textContent = texto;
+    $('btn-reintentar').hidden = !pendiente;
+    mostrar('p-error');
+  }
+
+  async function enviar() {
+    mostrar('p-enviando');
+    try {
+      await llamar({
+        perfil: persona,
+        tipo: pendiente.tipo,
+        archivo: pendiente.archivo,
+        nota: $('nota').value.trim(),
+      });
+      pendiente = null;
+      $('texto-listo').textContent = 'Te va a llegar la factura por correo. Si algo falla, lo vas a ver en "Mis tickets".';
+      mostrar('p-listo');
+    } catch (err) {
+      const sinRed = err instanceof TypeError || err.message === 'servidor';
+      mostrarError(sinRed ? 'Revisa que tengas internet e inténtalo otra vez.' : err.message);
+    }
+  }
+
+  function volverAlInicio() {
+    pendiente = null;
+    $('in-camara').value = '';
+    $('in-archivo').value = '';
+    pintarSaludo();
+    mostrar('p-inicio');
+    cargarTickets();
+  }
+
+  // ---- Arranque ----
+
+  if (!config || !config.url || !config.clave || config.personas.length === 0) {
+    mostrar('p-bienvenida');
+    return;
+  }
+
+  $('btn-foto').addEventListener('click', () => $('in-camara').click());
+  $('btn-subir').addEventListener('click', () => $('in-archivo').click());
+  ['in-camara', 'in-archivo'].forEach((id) => {
+    $(id).addEventListener('change', (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (f) prepararArchivo(f);
+    });
+  });
+  $('btn-nota').addEventListener('click', () => {
+    $('btn-nota').hidden = true;
+    $('nota').hidden = false;
+    $('nota').focus();
+  });
+  $('btn-enviar').addEventListener('click', enviar);
+  $('btn-otra').addEventListener('click', () => {
+    const usarCamara = pendiente && pendiente.tipo !== 'application/pdf';
+    volverAlInicio();
+    $(usarCamara ? 'in-camara' : 'in-archivo').click();
+  });
+  $('btn-otro').addEventListener('click', volverAlInicio);
+  $('btn-reintentar').addEventListener('click', enviar);
+  $('btn-cancelar').addEventListener('click', volverAlInicio);
+  $('btn-cambiar').addEventListener('click', preguntarQuien);
+
+  if (config.personas.includes(persona)) volverAlInicio();
+  else preguntarQuien();
+})();
+</script>
+</body>
+</html>
