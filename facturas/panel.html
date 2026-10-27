@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="only light">
+<meta name="theme-color" content="#ff79b8">
+<title>Barbifacturas · Panel</title>
+<link rel="icon" href="icono.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: only light;
+    --rosa: #ff3d97;
+    --rosa-claro: #ff79b8;
+    --rosa-suave: #ffe3f0;
+    --rosa-borde: #ffc9e2;
+    --lila: #b98cff;
+    --lila-suave: #efe5ff;
+    --texto: #5a1a3c;
+    --texto-suave: #a0627f;
+    --blanco: #ffffff;
+    --menta: #1f8a5b;
+    --menta-suave: #d9f7ea;
+    --durazno: #c2571a;
+    --durazno-suave: #ffe8d9;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    color: var(--texto);
+    font: 16px/1.45 "Fredoka", ui-rounded, system-ui, sans-serif;
+    background: linear-gradient(165deg, #ffd6ea 0%, #ffeef6 45%, #f1e6ff 100%) fixed;
+  }
+  button { font: inherit; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+
+  .app { display: grid; grid-template-rows: auto 1fr; height: 100vh; }
+  header {
+    display: flex; align-items: center; gap: 12px; padding: 14px 24px;
+    background: rgba(255,255,255,.6); border-bottom: 2px solid var(--rosa-borde);
+  }
+  header img { width: 38px; height: 38px; border-radius: 12px; }
+  header h1 { font-family: "Pacifico", cursive; font-weight: 400; font-size: 1.6rem; margin: 0; color: var(--rosa); }
+  header .sub { color: var(--texto-suave); margin-left: 4px; }
+  header .espacio { flex: 1; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 999px;
+    border: 2px solid var(--rosa-borde); background: var(--blanco); color: var(--rosa); font-weight: 600;
+  }
+  .btn.primario {
+    border: none; color: #fff; padding: 12px 22px;
+    background: linear-gradient(135deg, var(--rosa-claro), var(--rosa) 60%, #f0368c);
+    box-shadow: 0 10px 22px -12px var(--rosa);
+  }
+  .btn.verde { border: none; color: #fff; background: linear-gradient(135deg, #3fc48a, var(--menta)); }
+  .btn.chico { padding: 6px 12px; font-size: .85rem; }
+
+  .cuerpo { display: grid; grid-template-columns: 380px 1fr; min-height: 0; }
+  aside { border-right: 2px solid var(--rosa-borde); display: flex; flex-direction: column; min-height: 0; }
+  .filtros { padding: 16px 16px 8px; display: flex; flex-direction: column; gap: 10px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    padding: 6px 12px; border-radius: 999px; border: 2px solid var(--rosa-borde);
+    background: var(--blanco); color: var(--texto); font-size: .9rem;
+  }
+  .chip[aria-pressed="true"] { background: var(--rosa); border-color: var(--rosa); color: #fff; }
+  .lista { list-style: none; margin: 0; padding: 8px 16px 16px; overflow-y: auto; flex: 1; }
+  .item {
+    display: grid; grid-template-columns: 40px 1fr auto; gap: 10px; align-items: center;
+    padding: 12px; margin-bottom: 8px; border-radius: 18px; cursor: pointer;
+    background: rgba(255,255,255,.85); border: 2px solid transparent;
+  }
+  .item:hover { border-color: var(--rosa-borde); }
+  .item[aria-current="true"] { border-color: var(--rosa); background: var(--blanco); }
+  .avatar {
+    width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+    color: #fff; font-weight: 700; background: linear-gradient(135deg, var(--rosa-claro), var(--lila));
+  }
+  .item strong { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .item small { color: var(--texto-suave); }
+  .item .info { min-width: 0; }
+  .etiqueta { font-size: .75rem; font-weight: 600; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .etiqueta.listo { background: var(--rosa-suave); color: var(--rosa); }
+  .etiqueta.preparando { background: var(--lila-suave); color: #7a4cc2; }
+  .etiqueta.facturado { background: var(--menta-suave); color: var(--menta); }
+  .etiqueta.problema { background: var(--durazno-suave); color: var(--durazno); }
+  .vacio { padding: 24px; text-align: center; color: var(--texto-suave); }
+
+  main { overflow-y: auto; padding: 24px; min-height: 0; }
+  .detalle { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(320px, 440px); gap: 24px; align-items: start; }
+  .foto {
+    background: var(--blanco); border: 2px solid var(--rosa-borde); border-radius: 24px; padding: 8px;
+    position: sticky; top: 0;
+  }
+  .foto img { display: block; width: 100%; max-height: calc(100vh - 140px); object-fit: contain; border-radius: 16px; }
+  .foto iframe { width: 100%; height: calc(100vh - 140px); border: 0; border-radius: 16px; }
+  .foto .cargando { padding: 80px 0; text-align: center; color: var(--texto-suave); }
+  .tarjeta {
+    background: var(--blanco); border: 2px solid var(--rosa-borde); border-radius: 24px; padding: 20px;
+    margin-bottom: 16px;
+  }
+  .tarjeta h2 { margin: 0 0 4px; font-size: 1.4rem; }
+  .tarjeta h3 { margin: 0 0 10px; font-size: 1rem; color: var(--rosa); }
+  .meta { color: var(--texto-suave); margin: 0 0 14px; }
+  .aviso { background: var(--durazno-suave); color: var(--durazno); padding: 10px 14px; border-radius: 14px; margin: 0 0 14px; }
+  .dato {
+    display: grid; grid-template-columns: 130px 1fr auto; gap: 8px; align-items: center;
+    padding: 8px 0; border-top: 1px dashed var(--rosa-borde);
+  }
+  .dato:first-of-type { border-top: 0; }
+  .dato span:first-child { color: var(--texto-suave); font-size: .9rem; }
+  .dato code { font-family: inherit; font-weight: 600; overflow-wrap: anywhere; }
+  .copiar {
+    border: 2px solid var(--rosa-borde); background: var(--rosa-suave); color: var(--rosa);
+    border-radius: 999px; padding: 4px 12px; font-size: .85rem; font-weight: 600; min-width: 84px;
+  }
+  .copiar.hecho { background: var(--menta-suave); border-color: var(--menta-suave); color: var(--menta); }
+  .acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+  .toast {
+    position: fixed; left: 24px; bottom: 24px; max-width: 420px; z-index: 10;
+    background: var(--texto); color: #fff; padding: 14px 18px; border-radius: 18px;
+    box-shadow: 0 12px 28px -12px rgba(0,0,0,.4);
+  }
+  .portal-url { color: var(--texto-suave); font-size: .9rem; overflow-wrap: anywhere; margin: 8px 0 0; }
+
+  .pantalla-centro { display: grid; place-items: center; height: 100%; text-align: center; padding: 24px; }
+  .pantalla-centro p { max-width: 420px; color: var(--texto-suave); }
+
+  /* Procesando: el portal ocupa la mitad derecha de la pantalla, así que los
+     datos para copiar van a la izquierda y la lista se esconde. */
+  .procesando .cuerpo { grid-template-columns: 1fr; }
+  .procesando aside { display: none; }
+  .procesando main { padding: 16px; }
+  .procesando .detalle { grid-template-columns: minmax(300px, 420px) minmax(200px, 1fr); max-width: 48vw; }
+  .procesando .detalle > .foto { order: 2; }
+  .procesando .foto img { max-height: calc(100vh - 110px); }
+
+  @media (max-width: 900px) {
+    .cuerpo { grid-template-columns: 1fr; }
+    aside { border-right: 0; max-height: 45vh; }
+    .detalle { grid-template-columns: 1fr; }
+    .foto { position: static; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <img src="icono.svg" alt="">
+    <h1>Barbifacturas</h1>
+    <span class="sub">✨ panel</span>
+    <span class="espacio"></span>
+    <button class="btn" id="btn-recargar" type="button">↻ Actualizar</button>
+    <button class="btn primario" id="btn-procesar" type="button">Procesar pendientes</button>
+  </header>
+
+  <div class="pantalla-centro" id="sin-config" hidden>
+    <div>
+      <p style="font-size:1.4rem;font-weight:700;color:var(--texto)">¡Hola! ✨</p>
+      <p>Abre el link del panel que está en tu Drive, en "Barbifacturas – links de activación". Solo se hace una vez en esta computadora.</p>
+    </div>
+  </div>
+
+  <div class="cuerpo" id="cuerpo" hidden>
+    <aside>
+      <div class="filtros">
+        <div class="chips" id="filtro-persona"></div>
+        <div class="chips" id="filtro-estado"></div>
+      </div>
+      <ul class="lista" id="lista"></ul>
+    </aside>
+    <main id="main"></main>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  const VENTANA_PORTAL = 'barbifacturas-portal';
+  const $ = (id) => document.getElementById(id);
+
+  function leer(clave, porDefecto) {
+    try {
+      const v = localStorage.getItem(clave);
+      return v === null ? porDefecto : JSON.parse(v);
+    } catch (e) { return porDefecto; }
+  }
+  function guardar(clave, valor) {
+    try { localStorage.setItem(clave, JSON.stringify(valor)); } catch (e) { /* sin almacenamiento */ }
+  }
+
+  // Activación por link: panel.html#u=<receptor>&kp=<clave del panel>
+  let config = leer('panel', null);
+  if (location.hash.length > 1) {
+    const h = new URLSearchParams(location.hash.slice(1));
+    if (h.get('u') && h.get('kp')) {
+      config = { url: h.get('u'), clave: h.get('kp') };
+      guardar('panel', config);
+    }
+    history.replaceState(null, '', location.pathname);
+  }
+  window.addEventListener('hashchange', () => location.reload());
+
+  let tickets = [];
+  let perfiles = {};
+  let filtroPersona = 'Todas';
+  let filtroEstado = 'pendiente';
+  let seleccionado = null;
+  let cola = null;              // ids en modo "Procesar pendientes"
+  const imagenes = new Map();   // id -> URL para mostrar
+
+  async function llamar(cuerpo) {
+    const r = await fetch(config.url, {
+      method: 'POST',
+      body: JSON.stringify(Object.assign({ clave: config.clave }, cuerpo)),
+    });
+    if (!r.ok) throw new Error('El servidor respondió ' + r.status);
+    const datos = await r.json();
+    if (!datos.ok) throw new Error(datos.error || 'Error desconocido');
+    return datos;
+  }
+
+  function el(tag, props, ...hijos) {
+    const n = document.createElement(tag);
+    Object.entries(props || {}).forEach(([k, v]) => {
+      if (k === 'class') n.className = v;
+      else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+      else if (v !== false && v != null) n.setAttribute(k, v);
+    });
+    hijos.flat().forEach((h) => { if (h != null && h !== false) n.append(h); });
+    return n;
+  }
+
+  function fechaCorta(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' }) + ', ' +
+      d.toLocaleTimeString('es-MX', { hour: 'numeric', minute: '2-digit' });
+  }
+
+  function etiqueta(t) {
+    if (t.estado === 'facturado') return ['facturado', 'Facturado'];
+    if (t.estado === 'problema') return ['problema', 'Necesita ayuda'];
+    return t.preparado ? ['listo', 'Listo para procesar'] : ['preparando', 'Claude lo está leyendo'];
+  }
+
+  function pendientes() {
+    return tickets
+      .filter((t) => t.estado === 'pendiente' && (filtroPersona === 'Todas' || t.perfil === filtroPersona))
+      .sort((a, b) => (a.subido < b.subido ? -1 : 1));
+  }
+
+  // ---- Barra lateral ----
+
+  function pintarFiltros() {
+    const personas = ['Todas'].concat(Object.keys(perfiles));
+    $('filtro-persona').replaceChildren(...personas.map((p) => el('button', {
+      class: 'chip', type: 'button', 'aria-pressed': String(p === filtroPersona),
+      onclick: () => { filtroPersona = p; pintar(); },
+    }, p)));
+
+    const cuenta = (e) => tickets.filter((t) => t.estado === e &&
+      (filtroPersona === 'Todas' || t.perfil === filtroPersona)).length;
+    const estados = [['pendiente', 'Por facturar'], ['facturado', 'Facturados'], ['problema', 'Con problema']];
+    $('filtro-estado').replaceChildren(...estados.map(([e, nombre]) => el('button', {
+      class: 'chip', type: 'button', 'aria-pressed': String(e === filtroEstado),
+      onclick: () => { filtroEstado = e; pintar(); },
+    }, nombre + ' (' + cuenta(e) + ')')));
+
+    const n = pendientes().length;
+    $('btn-procesar').textContent = 'Procesar pendientes (' + n + ')';
+    $('btn-procesar').disabled = n === 0;
+  }
+
+  function pintarLista() {
+    const visibles = tickets.filter((t) => t.estado === filtroEstado &&
+      (filtroPersona === 'Todas' || t.perfil === filtroPersona));
+    if (visibles.length === 0) {
+      $('lista').replaceChildren(el('li', { class: 'vacio' }, 'Nada por aquí 💕'));
+      return;
+    }
+    $('lista').replaceChildren(...visibles.map((t) => {
+      const [clase, texto] = etiqueta(t);
+      return el('li', {
+        class: 'item', 'aria-current': String(seleccionado === t.id),
+        onclick: () => { cola = null; seleccionar(t.id); },
+      },
+      el('span', { class: 'avatar' }, (t.perfil || '?').charAt(0).toUpperCase()),
+      el('span', { class: 'info' },
+        el('strong', {}, (t.comercio || 'Ticket') + (t.total ? ' · $' + t.total : '')),
+        el('small', {}, t.perfil + ' · ' + fechaCorta(t.subido))),
+      el('span', { class: 'etiqueta ' + clase }, texto));
+    }));
+  }
+
+  // ---- Detalle ----
+
+  function botonCopiar(valor) {
+    const b = el('button', { class: 'copiar', type: 'button' }, 'Copiar');
+    b.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(valor);
+        b.textContent = '¡Copiado!';
+        b.classList.add('hecho');
+        setTimeout(() => { b.textContent = 'Copiar'; b.classList.remove('hecho'); }, 1500);
+      } catch (e) {
+        prompt('Copia este dato:', valor);
+      }
+    });
+    return b;
+  }
+
+  function filaDato(nombre, valor) {
+    if (!valor) return null;
+    return el('div', { class: 'dato' }, el('span', {}, nombre), el('code', {}, valor), botonCopiar(String(valor)));
+  }
+
+  function abrirPortal(url) {
+    const w = Math.round(screen.availWidth * 0.5);
+    const h = screen.availHeight;
+    const izq = screen.availWidth - w;
+    const v = window.open(url, VENTANA_PORTAL, `popup,width=${w},height=${h},left=${izq},top=0`);
+    if (!v) alert('Chrome bloqueó la ventana del portal. Da clic en el ícono de ventana bloqueada en la barra de direcciones y elige "Permitir siempre".');
+    else v.focus();
+  }
+
+  // Instrucción para pegar en Claude in Chrome, que sí puede llenar el portal.
+  function instruccionClaude(t) {
+    const f = perfiles[t.perfil] || {};
+    const lineas = (pares) => pares.filter(([, v]) => v).map(([k, v]) => '- ' + k + ': ' + v).join('\n');
+    const delTicket = Object.entries(t.campos || {});
+    if (!delTicket.some(([k]) => /fecha/i.test(k)) && t.fecha) delTicket.push(['Fecha', t.fecha]);
+    if (!delTicket.some(([k]) => /importe|total/i.test(k)) && t.total) delTicket.push(['Total', t.total]);
+    return [
+      'Estoy en el portal de facturación de ' + (t.comercio || 'un comercio') + '. ' +
+      'Ayúdame a sacar la factura (CFDI 4.0) llenando el formulario de esta pestaña con los datos de abajo.',
+      'Si aparece un captcha o una casilla de "no soy un robot", avísame y yo la resuelvo.',
+      'Antes de dar clic en el botón final para generar o timbrar la factura, muéstrame un resumen y espera mi OK.',
+      'Si el portal pide algo que no está aquí, pregúntame.',
+      '',
+      'Datos del ticket:',
+      lineas(delTicket),
+      '',
+      'Datos fiscales (' + t.perfil + '):',
+      lineas([['RFC', f.rfc], ['Nombre o razón social', f.nombre], ['Código postal', f.cp],
+        ['Régimen fiscal', f.regimen], ['Uso de CFDI', f.usoCfdi], ['Correo para la factura', f.correo]]),
+    ].join('\n');
+  }
+
+  async function abrirConClaude(t) {
+    let copiado = true;
+    try { await navigator.clipboard.writeText(instruccionClaude(t)); } catch (e) { copiado = false; }
+    const v = window.open(t.portal, '_blank');
+    if (!v) alert('Chrome bloqueó la pestaña del portal. Permite ventanas emergentes para este sitio e inténtalo otra vez.');
+    if (!copiado) prompt('Copia esta instrucción y pégala en Claude:', instruccionClaude(t));
+    aviso('Instrucción copiada ✨ En la pestaña del portal abre Claude (ícono de Claude en Chrome), pega y envía.');
+  }
+
+  function aviso(texto) {
+    const n = el('div', { class: 'toast', role: 'status' }, texto);
+    document.body.appendChild(n);
+    setTimeout(() => n.remove(), 7000);
+  }
+
+  async function cargarImagen(t, cont) {
+    if (!imagenes.has(t.id)) {
+      try {
+        const r = await llamar({ accion: 'imagen', id: t.id });
+        const bytes = Uint8Array.from(atob(r.archivo), (c) => c.charCodeAt(0));
+        imagenes.set(t.id, URL.createObjectURL(new Blob([bytes], { type: r.tipo })));
+      } catch (e) {
+        cont.replaceChildren(el('div', { class: 'cargando' }, 'No pude cargar la foto: ' + e.message));
+        return;
+      }
+    }
+    if (seleccionado !== t.id) return;
+    const src = imagenes.get(t.id);
+    cont.replaceChildren(t.tipo === 'application/pdf'
+      ? el('iframe', { src, title: 'Ticket en PDF' })
+      : el('img', { src, alt: 'Foto del ticket' }));
+  }
+
+  function pintarDetalle() {
+    const t = tickets.find((x) => x.id === seleccionado);
+    if (!t) {
+      $('main').replaceChildren(el('div', { class: 'pantalla-centro' },
+        el('div', {}, el('p', { style: 'font-size:1.2rem;font-weight:600;color:var(--texto)' }, 'Elige un ticket de la lista'),
+          el('p', {}, 'o da clic en "Procesar pendientes" para ir uno por uno.'))));
+      return;
+    }
+    const fiscal = perfiles[t.perfil] || {};
+    const [clase, texto] = etiqueta(t);
+    const foto = el('div', { class: 'foto' }, el('div', { class: 'cargando' }, 'Cargando foto…'));
+    cargarImagen(t, foto);
+
+    const campos = Object.entries(t.campos || {});
+    const enCola = cola ? cola.indexOf(t.id) : -1;
+
+    const resumen = el('div', { class: 'tarjeta' },
+      el('h2', {}, (t.comercio || 'Ticket') + (t.total ? ' · $' + t.total : '')),
+      el('p', { class: 'meta' }, t.perfil + ' · subido ' + fechaCorta(t.subido) + ' · ',
+        el('span', { class: 'etiqueta ' + clase }, texto)),
+      t.plazo ? el('p', { class: 'aviso' }, '⏰ ' + t.plazo) : null,
+      t.motivo ? el('p', { class: 'aviso' }, t.motivo) : null,
+      t.nota ? el('p', { class: 'meta' }, 'Nota: ' + t.nota) : null,
+      t.portal
+        ? el('div', {},
+            el('div', { class: 'acciones' },
+              el('button', { class: 'btn primario', type: 'button', onclick: () => abrirConClaude(t) }, '✨ Abrir portal con Claude'),
+              el('button', { class: 'btn', type: 'button', onclick: () => abrirPortal(t.portal) }, 'Abrir al lado (a mano)')),
+            el('p', { class: 'portal-url' }, t.portal))
+        : el('p', { class: 'meta' }, 'Claude todavía no lee este ticket. Mientras, revisa la foto: el portal y la referencia vienen abajo del ticket.'));
+
+    const datosTicket = campos.length || t.fecha || t.total
+      ? el('div', { class: 'tarjeta' }, el('h3', {}, 'Datos del ticket'),
+          ...campos.map(([k, v]) => filaDato(k, v)),
+          campos.some(([k]) => /fecha/i.test(k)) ? null : filaDato('Fecha', t.fecha),
+          campos.some(([k]) => /importe|total/i.test(k)) ? null : filaDato('Total', t.total))
+      : null;
+
+    const datosFiscales = el('div', { class: 'tarjeta' }, el('h3', {}, 'Datos fiscales de ' + t.perfil),
+      filaDato('RFC', fiscal.rfc),
+      filaDato('Nombre / razón social', fiscal.nombre),
+      filaDato('Código postal', fiscal.cp),
+      filaDato('Régimen fiscal', fiscal.regimen),
+      filaDato('Uso de CFDI', fiscal.usoCfdi),
+      filaDato('Correo', fiscal.correo));
+
+    const acciones = el('div', { class: 'tarjeta' },
+      cola && enCola !== -1 ? el('p', { class: 'meta' }, 'Ticket ' + (enCola + 1) + ' de ' + cola.length) : null,
+      el('div', { class: 'acciones' },
+        t.estado !== 'facturado'
+          ? el('button', { class: 'btn verde', type: 'button', onclick: () => mover(t, 'facturado') }, '✓ Ya quedó facturado')
+          : null,
+        t.estado !== 'problema'
+          ? el('button', { class: 'btn', type: 'button', onclick: () => {
+              const motivo = prompt('¿Qué pasó? (por ejemplo: el portal dice que ya venció)');
+              if (motivo !== null) mover(t, 'problema', motivo);
+            } }, 'Tiene un problema')
+          : null,
+        t.estado !== 'pendiente'
+          ? el('button', { class: 'btn', type: 'button', onclick: () => mover(t, 'pendiente') }, 'Regresar a por facturar')
+          : null,
+        cola ? el('button', { class: 'btn', type: 'button', onclick: siguiente }, 'Saltar →') : null,
+        cola ? el('button', { class: 'btn', type: 'button', onclick: () => { cola = null; pintar(); } }, 'Terminar') : null));
+
+    // Procesando, las acciones van arriba: la ventana del portal tapa la mitad derecha.
+    const tarjetas = cola
+      ? [acciones, resumen, datosTicket, datosFiscales]
+      : [resumen, datosTicket, datosFiscales, acciones];
+    $('main').replaceChildren(el('div', { class: 'detalle' }, foto, el('div', {}, ...tarjetas)));
+  }
+
+  function seleccionar(id) {
+    seleccionado = id;
+    pintar();
+  }
+
+  function pintar() {
+    pintarFiltros();
+    pintarLista();
+    pintarDetalle();
+    document.body.classList.toggle('procesando', !!cola);
+  }
+
+  // ---- Procesar uno por uno ----
+
+  // No abre el portal solo: Chrome bloquea ventanas que no salen de un clic,
+  // y así se elige entre abrirlo con Claude o al lado.
+  function irA(id) {
+    seleccionar(id);
+  }
+
+  function siguiente() {
+    if (!cola) return;
+    const actual = cola.indexOf(seleccionado);
+    const resto = cola.slice(actual + 1).concat(cola.slice(0, Math.max(actual, 0)))
+      .filter((id) => (tickets.find((t) => t.id === id) || {}).estado === 'pendiente');
+    if (resto.length === 0) {
+      cola = null;
+      pintar();
+      alert('¡Listo! Ya no quedan tickets por facturar 💖');
+      return;
+    }
+    irA(resto[0]);
+  }
+
+  async function mover(t, destino, motivo) {
+    try {
+      await llamar({ accion: 'marcar', id: t.id, destino, motivo });
+      t.estado = destino;
+      if (destino === 'problema') t.motivo = motivo; else t.motivo = '';
+      if (cola) siguiente(); else pintar();
+    } catch (e) {
+      alert('No se pudo guardar: ' + e.message);
+    }
+  }
+
+  $('btn-procesar').addEventListener('click', () => {
+    const lista = pendientes();
+    if (lista.length === 0) return;
+    // Primero los que Claude ya preparó.
+    cola = lista.filter((t) => t.preparado).concat(lista.filter((t) => !t.preparado)).map((t) => t.id);
+    filtroEstado = 'pendiente';
+    irA(cola[0]);
+  });
+
+  async function cargar() {
+    $('btn-recargar').disabled = true;
+    try {
+      const r = await llamar({ accion: 'lista' });
+      tickets = r.tickets;
+      perfiles = r.perfiles || {};
+      if (filtroPersona !== 'Todas' && !perfiles[filtroPersona]) filtroPersona = 'Todas';
+      pintar();
+    } catch (e) {
+      $('main').replaceChildren(el('div', { class: 'pantalla-centro' },
+        el('p', {}, 'No pude cargar los tickets: ' + e.message)));
+    } finally {
+      $('btn-recargar').disabled = false;
+    }
+  }
+  $('btn-recargar').addEventListener('click', cargar);
+
+  if (!config || !config.url || !config.clave) {
+    $('sin-config').hidden = false;
+    $('btn-recargar').hidden = true;
+    $('btn-procesar').hidden = true;
+    return;
+  }
+  $('cuerpo').hidden = false;
+  cargar();
+})();
+</script>
+</body>
+</html>
