@@ -127,6 +127,17 @@
     background: var(--texto); color: #fff; padding: 14px 18px; border-radius: 18px;
     box-shadow: 0 12px 28px -12px rgba(0,0,0,.4);
   }
+  .fondo-modal {
+    position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 16px;
+    background: rgba(90, 26, 60, .35);
+  }
+  .modal {
+    background: var(--blanco); border-radius: 28px; padding: 28px; max-width: 520px; width: 100%;
+    box-shadow: 0 24px 48px -20px rgba(90, 26, 60, .5);
+  }
+  .modal h2 { margin: 0 0 14px; color: var(--rosa); font-size: 1.4rem; }
+  .modal ol { margin: 0 0 22px; padding-left: 22px; }
+  .modal li { margin-bottom: 10px; }
   .portal-url { color: var(--texto-suave); font-size: .9rem; overflow-wrap: anywhere; margin: 8px 0 0; }
 
   .pantalla-centro { display: grid; place-items: center; height: 100%; text-align: center; padding: 24px; }
@@ -359,7 +370,25 @@
     const v = window.open(t.portal, '_blank');
     if (!v) alert('Chrome bloqueó la pestaña del portal. Permite ventanas emergentes para este sitio e inténtalo otra vez.');
     if (!copiado) prompt('Copia esta instrucción y pégala en Claude:', instruccionClaude(t));
-    aviso('Instrucción copiada ✨ En la pestaña del portal abre Claude (ícono de Claude en Chrome), pega y envía.');
+    aviso('Instrucción copiada ✨ En la pestaña del portal abre Claude, pega con Ctrl+V y da Enter.');
+  }
+
+  // El panel no puede encender Claude in Chrome: solo deja la instrucción
+  // copiada. Este paso a paso lo recuerda antes de abrir el portal.
+  function pasosClaude(t) {
+    const cerrar = () => fondo.remove();
+    const fondo = el('div', { class: 'fondo-modal', onclick: (e) => { if (e.target === fondo) cerrar(); } },
+      el('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'titulo-pasos' },
+        el('h2', { id: 'titulo-pasos' }, 'Así le pides a Claude que lo llene ✨'),
+        el('ol', {},
+          el('li', {}, 'Al dar clic abajo, se abre el portal en otra pestaña y la instrucción queda copiada.'),
+          el('li', {}, 'En esa pestaña, abre Claude con su ícono en la barra de Chrome, arriba a la derecha (si no lo ves, está en el rompecabezas 🧩).'),
+          el('li', {}, 'En el cuadro de Claude pega con Ctrl+V (en Mac Cmd+V) y presiona Enter.'),
+          el('li', {}, 'Claude llena el formulario. Cuando te avise del captcha, márcalo tú, y dale tu OK antes de generar la factura.')),
+        el('div', { class: 'acciones' },
+          el('button', { class: 'btn primario', type: 'button', onclick: () => { cerrar(); abrirConClaude(t); } }, 'Entendido, abrir portal'),
+          el('button', { class: 'btn', type: 'button', onclick: cerrar }, 'Cancelar'))));
+    document.body.appendChild(fondo);
   }
 
   function aviso(texto) {
@@ -412,7 +441,7 @@
       t.portal
         ? el('div', {},
             el('div', { class: 'acciones' },
-              el('button', { class: 'btn primario', type: 'button', onclick: () => abrirConClaude(t) }, '✨ Abrir portal con Claude'),
+              el('button', { class: 'btn primario', type: 'button', onclick: () => pasosClaude(t) }, '✨ Abrir portal con Claude'),
               el('button', { class: 'btn', type: 'button', onclick: () => abrirPortal(t.portal) }, 'Abrir al lado (a mano)')),
             el('p', { class: 'portal-url' }, t.portal))
         : el('p', { class: 'meta' }, 'Claude todavía no lee este ticket. Mientras, revisa la foto: el portal y la referencia vienen abajo del ticket.'));
